@@ -41,7 +41,7 @@ function AppRoutes() {
           count is {count}
         </button>
         <p>
-          Hello World! i saw and yall can eat shit it so see changes it so see changes
+          Edit <code>src/App.tsx</code> and save it so see changes
         </p>
       </div>
       <p className="read-the-docs">
