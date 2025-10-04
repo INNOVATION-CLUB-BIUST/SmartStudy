@@ -15,7 +15,7 @@ function AppRoutes() {
     <Router>
       <div className="App">
         <Routes>
-          {/* Redirect to onboarding if user hasn't completed it */}
+          {// Redirect to onboarding if user hasn't completed it }
           <Route 
             path="/" 
             element={
@@ -49,3 +49,5 @@ function App() {
 }
 
 export default App;
+
+*/
