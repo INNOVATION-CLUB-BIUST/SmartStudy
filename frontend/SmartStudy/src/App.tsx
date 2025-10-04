@@ -25,6 +25,8 @@ function AppRoutes() {
           
           {/* Main application routes 
           <Route path="/onboarding" element={<Onboarding />} />
+          {// Onboarding flow }
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/study-mode" element={<StudyMode />} />
           <Route path="/analytics" element={<Analytics />} />
