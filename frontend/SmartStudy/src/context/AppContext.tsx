@@ -212,3 +212,5 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
+
+export default AppContext;
