@@ -6,6 +6,7 @@ import { AppProvider } from './context/AppContext';
 //import StudyMode from './pages/StudyMode';
 //import Analytics from './pages/Analytics';
 //import Settings from './pages/Settings';
+import './App.css';
 
 // Main app routes component that uses the context
 function AppRoutes() {
