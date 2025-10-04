@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+<<<<<<< HEAD
 import { AppProvider } from './context/AppContext';
 //import { useUser } from './hooks';
 //import Dashboard from './pages/Dashboard';
@@ -10,6 +11,19 @@ import { AppProvider } from './context/AppContext';
 // Main app routes component that uses the context
 function AppRoutes() {
  // const { isOnboarded } = useUser();
+=======
+// import { AppProvider } from './context/AppContext';
+import { useUser } from './hooks';
+import Dashboard from './pages/Dashboard';
+import Onboarding from './pages/Onboarding';
+import StudyMode from './pages/StudyMode';
+import Analytics from './pages/Analytics';
+import Settings from './pages/Settings';
+
+// Main app routes component that uses the context
+function AppRoutes() {
+  const { isOnboarded } = useUser();
+>>>>>>> c743bca (refactor App component to implement routing and user onboarding logic)
 
   return (
     <Router>
@@ -19,36 +33,39 @@ function AppRoutes() {
           <Route 
             path="/" 
             element={
+<<<<<<< HEAD
                <Navigate to="/dashboard" replace />
             } 
           />
           
           {/* Main application routes 
           <Route path="/onboarding" element={<Onboarding />} />
+=======
+              isOnboarded() ? <Navigate to="/dashboard" replace /> : <Navigate to="/onboarding" replace />
+            } 
+          />
+          
+          {/* Onboarding flow */}
+          <Route path="/onboarding" element={<Onboarding />} />
+          
+          {/* Main application routes */}
+>>>>>>> c743bca (refactor App component to implement routing and user onboarding logic)
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/study-mode" element={<StudyMode />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />
+<<<<<<< HEAD
           */}
 
+=======
+          
+>>>>>>> c743bca (refactor App component to implement routing and user onboarding logic)
           {/* Catch-all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save it so see changes
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </Router>
+  );
 }
 
 // Main App component with context provider
