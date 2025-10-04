@@ -14,9 +14,10 @@ function AppRoutes() {
   return (
     <Router>
       <div className="App">
+        {/* 
         <Routes>
-          {// Redirect to onboarding if user hasn't completed it }
-          <Route 
+          //Redirect to onboarding if user hasn't completed it
+         <Route 
             path="/" 
             element={
                <Navigate to="/dashboard" replace />
@@ -36,6 +37,7 @@ function AppRoutes() {
           {/* Catch-all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        */}
       </div>
     </Router>
   );
@@ -52,4 +54,3 @@ function App() {
 
 export default App;
 
-*/
