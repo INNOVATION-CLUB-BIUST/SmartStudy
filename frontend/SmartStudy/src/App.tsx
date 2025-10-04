@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-// import { AppProvider } from './context/AppContext';
+/*import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+ import { AppProvider } from './context/AppContext';
 import { useUser } from './hooks';
 import Dashboard from './pages/Dashboard';
 import Onboarding from './pages/Onboarding';
@@ -15,7 +15,7 @@ function AppRoutes() {
     <Router>
       <div className="App">
         <Routes>
-          {/* Redirect to onboarding if user hasn't completed it */}
+          {// Redirect to onboarding if user hasn't completed it }
           <Route 
             path="/" 
             element={
@@ -23,16 +23,16 @@ function AppRoutes() {
             } 
           />
           
-          {/* Onboarding flow */}
+          {// Onboarding flow }
           <Route path="/onboarding" element={<Onboarding />} />
           
-          {/* Main application routes */}
+          {// Main application routes }
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/study-mode" element={<StudyMode />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />
           
-          {/* Catch-all route */}
+          {// Catch-all route }
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
@@ -50,3 +50,5 @@ function App() {
 }
 
 export default App;
+
+*/
