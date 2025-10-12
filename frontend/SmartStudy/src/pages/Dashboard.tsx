@@ -4,6 +4,7 @@ import Layout from '../components/layout/Layout';
 import Home from '../components/Dashboard/Home';
 import Schedule from '../components/Dashboard/Schedule';
 import UpcomingTasks from '../components/Dashboard/UpcomingTasks';
+import Goals from '../components/Dashboard/Goals';
 
 const Dashboard = () => {
   return (
@@ -12,6 +13,7 @@ const Dashboard = () => {
         <Route path="/" element={<Home />} />
         <Route path="/schedule" element={<Schedule />} />
         <Route path="/tasks" element={<UpcomingTasks />} />
+        <Route path="/goals" element={<Goals />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Layout>
