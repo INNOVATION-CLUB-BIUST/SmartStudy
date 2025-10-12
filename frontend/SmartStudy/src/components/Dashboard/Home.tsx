@@ -11,14 +11,22 @@ import {
   Zap,
   Award
 } from 'lucide-react';
+import useGoals from '../../hooks/useGoals';
 
 const Home = () => {
+  const { getStats, getUpcomingGoals } = useGoals();
+  const goalStats = getStats();
+  const upcomingGoals = getUpcomingGoals();
+
   const todayStats = {
     studyTime: '2h 30m',
     tasksCompleted: 3,
     totalTasks: 5,
     focusScore: 85,
-    streak: 7
+    streak: 7,
+    goalsCompleted: goalStats.completed,
+    activeGoals: goalStats.active,
+    goalProgress: goalStats.averageProgress
   };
 
   const upcomingTasks = [
@@ -156,7 +164,7 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Upcoming Tasks */}
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-orange-500/20">
           <div className="flex items-center justify-between mb-6">
@@ -195,6 +203,48 @@ const Home = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Goals Overview */}
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-orange-500/20">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-white">Goals Progress</h2>
+            <button className="text-orange-400 hover:text-orange-300 text-sm font-medium">
+              View All
+            </button>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300">Completed Goals</span>
+              <span className="text-white font-bold">{goalStats.completed}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300">Active Goals</span>
+              <span className="text-white font-bold">{goalStats.active}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300">Average Progress</span>
+              <span className="text-white font-bold">{goalStats.averageProgress}%</span>
+            </div>
+            <div className="pt-2">
+              <div className="w-full h-2 bg-slate-600 rounded-full">
+                <div 
+                  className="h-2 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full transition-all duration-500"
+                  style={{ width: `${goalStats.averageProgress}%` }}
+                ></div>
+              </div>
+            </div>
+            {upcomingGoals.length > 0 && (
+              <div className="pt-2 border-t border-slate-700">
+                <p className="text-sm text-slate-400 mb-2">Upcoming deadlines:</p>
+                {upcomingGoals.slice(0, 2).map((goal) => (
+                  <div key={goal.id} className="text-sm text-slate-300">
+                    • {goal.title} - {goal.targetDate.toLocaleDateString()}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
