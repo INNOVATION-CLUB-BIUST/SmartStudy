@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import HomePage from './pages/HomePage';
+import Onboarding from './pages/Onboarding';
+import Dashboard from './pages/Dashboard';
 //import { useUser } from './hooks';
-//import Dashboard from './pages/Dashboard';
-//import Onboarding from './pages/Onboarding';
 //import StudyMode from './pages/StudyMode';
 //import Analytics from './pages/Analytics';
 //import Settings from './pages/Settings';
@@ -24,11 +24,13 @@ function AppRoutes() {
             } 
           />
           
-          {/* Main application routes 
+          {/* Onboarding flow */}
           <Route path="/onboarding" element={<Onboarding />} />
-          {// Onboarding flow }
-          <Route path="/onboarding" element={<Onboarding />} />
+          
+          {/* Main application routes */}
           <Route path="/dashboard/*" element={<Dashboard />} />
+          
+          {/* Additional routes 
           <Route path="/study-mode" element={<StudyMode />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />
