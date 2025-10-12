@@ -5,6 +5,7 @@ import Home from '../components/Dashboard/Home';
 import Schedule from '../components/Dashboard/Schedule';
 import UpcomingTasks from '../components/Dashboard/UpcomingTasks';
 import Goals from '../components/Dashboard/Goals';
+import GroupStudy from '../components/Dashboard/GroupStudy';
 
 const Dashboard = () => {
   return (
@@ -14,6 +15,7 @@ const Dashboard = () => {
         <Route path="/schedule" element={<Schedule />} />
         <Route path="/tasks" element={<UpcomingTasks />} />
         <Route path="/goals" element={<Goals />} />
+        <Route path="/study-groups" element={<GroupStudy />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Layout>
