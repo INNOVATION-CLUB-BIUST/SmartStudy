@@ -32,6 +32,36 @@ export interface WeeklyGoal {
   createdAt: Date;
 }
 
+export interface Goal {
+  id: string;
+  title: string;
+  description: string;
+  type: 'academic' | 'study' | 'personal' | 'career';
+  priority: 'low' | 'medium' | 'high';
+  status: 'active' | 'completed' | 'paused';
+  targetDate: Date;
+  progress: number; // 0-100
+  milestones: Milestone[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Milestone {
+  id: string;
+  title: string;
+  completed: boolean;
+  targetDate: Date;
+  completedAt?: Date;
+}
+
+export interface GoalStats {
+  total: number;
+  completed: number;
+  active: number;
+  paused: number;
+  averageProgress: number;
+}
+
 // Onboarding form data types
 export interface ProfileData {
   name?: string;
