@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
+import HomePage from './pages/HomePage';
 //import { useUser } from './hooks';
 //import Dashboard from './pages/Dashboard';
 //import Onboarding from './pages/Onboarding';
@@ -19,7 +20,7 @@ function AppRoutes() {
           <Route 
             path="/" 
             element={
-               <Navigate to="/dashboard" replace />
+               <HomePage />
             } 
           />
           
