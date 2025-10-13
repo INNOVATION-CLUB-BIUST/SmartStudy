@@ -7,6 +7,7 @@ import UpcomingTasks from '../components/Dashboard/UpcomingTasks';
 import Goals from '../components/Dashboard/Goals';
 import GroupStudy from '../components/Dashboard/GroupStudy';
 import StudyTime from '../components/Dashboard/StudyTime';
+import AIAssistant from '../components/AI/AIAssistant';
 
 const Dashboard = () => {
   return (
@@ -18,6 +19,7 @@ const Dashboard = () => {
         <Route path="/goals" element={<Goals />} />
         <Route path="/study-groups" element={<GroupStudy />} />
         <Route path="/study-time" element={<StudyTime />} />
+        <Route path="/ai-assistant" element={<AIAssistant />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Layout>
