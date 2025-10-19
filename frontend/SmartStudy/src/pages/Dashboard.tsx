@@ -7,6 +7,7 @@ import UpcomingTasks from '../components/Dashboard/UpcomingTasks';
 import Goals from '../components/Dashboard/Goals';
 import Analytics from './Analytics';
 import GroupStudy from '../components/Dashboard/GroupStudy';
+
 import StudyTime from '../components/Dashboard/StudyTime';
 import AIAssistant from '../components/AI/AIAssistant';
 
