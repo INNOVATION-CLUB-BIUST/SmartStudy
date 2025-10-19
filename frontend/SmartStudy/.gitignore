@@ -3,3 +3,12 @@
 
 # VSCode
 !.vscode/extensions.json
+
+# Firebase environment variables
+.env
+.env.local
+.env.*.local
+firebase.json
+.firebaserc
+firestore.indexes.json
+firestore.rules
