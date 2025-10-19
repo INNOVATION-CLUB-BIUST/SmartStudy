@@ -217,6 +217,7 @@ const Goals = () => {
 
               {/* Milestones */}
               <div className="space-y-2">
+                
                 <h4 className="text-sm font-medium text-slate-300 mb-3">Milestones</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {goal.milestones.map((milestone) => (
