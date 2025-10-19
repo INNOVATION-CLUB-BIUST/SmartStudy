@@ -3,6 +3,7 @@ import { AppProvider } from './context/AppContext';
 import HomePage from './pages/HomePage';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
+import LoginPage from './pages/LoginPage'; // Import LoginPage
 //import { useUser } from './hooks';
 //import StudyMode from './pages/StudyMode';
 //import Analytics from './pages/Analytics';
@@ -26,6 +27,10 @@ function AppRoutes() {
           
           {/* Onboarding flow */}
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/get-started" element={<Navigate to="/onboarding" replace />} />
+
+          {/* Auth routes */}
+          <Route path="/login" element={<LoginPage />} />
           
           {/* Main application routes */}
           <Route path="/dashboard/*" element={<Dashboard />} />
