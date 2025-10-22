@@ -16,12 +16,15 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
     firstName: data?.firstName || '',
     lastName: data?.lastName || '',
     email: data?.email || '',
+    password: data?.password || '',
+    confirmPassword: data?.confirmPassword || '',
     studentId: data?.studentId || '',
     university: data?.university || 'BIUST',
     yearOfStudy: data?.yearOfStudy || '',
     major: data?.major || '',
     dateOfBirth: data?.dateOfBirth || '',
   });
+  const [error, setError] = useState('');
 
   const handleInputChange = (field: string, value: string) => {
     const newData = { ...formData, [field]: value };
@@ -30,6 +33,11 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
   };
 
   const handleNext = () => {
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    setError('');
     onDataChange(formData);
     onNext();
   };
@@ -58,6 +66,8 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
           Help us personalize your SmartStudy experience by sharing your academic profile.
         </p>
       </div>
+
+      {error && <p className="text-red-500 text-center">{error}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* First Name */}
@@ -97,6 +107,30 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
               placeholder="your.email@biust.ac.bw"
             />
           </div>
+        </div>
+
+        {/* Password */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-orange-300">Password</label>
+          <input
+            type="password"
+            value={formData.password}
+            onChange={(e) => handleInputChange('password', e.target.value)}
+            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+            placeholder="Create a password"
+          />
+        </div>
+
+        {/* Confirm Password */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-orange-300">Confirm Password</label>
+          <input
+            type="password"
+            value={formData.confirmPassword}
+            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+            placeholder="Confirm your password"
+          />
         </div>
 
         {/* Student ID */}
