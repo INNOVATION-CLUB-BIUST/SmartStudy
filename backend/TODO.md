@@ -1,18 +1,47 @@
 # SmartStudy To-Do List
 
+## Current Progress
+**Last Updated:** October 29, 2025
+
+### Completed Backend Functions:
+- ✅ Basic Express server setup with CORS and JSON parsing
+- ✅ Firebase Admin SDK initialization
+- ✅ Firestore database connection
+- ✅ `/hello` test endpoint
+- ✅ `/onboarding` endpoint - Fully implemented with:
+  - User profile creation in Firestore
+  - Initial goals creation
+  - Data validation
+  - Error handling
+
+### Completed Frontend Features:
+- ✅ Multi-step onboarding flow UI (6 steps)
+- ✅ Data collection from all onboarding steps
+- ✅ API integration to send onboarding data to backend
+- ✅ Proper TypeScript type definitions
+- ✅ Form validation and error handling
+
+### Known Issues/TODOs:
+- ⚠️ Replace placeholder `uid` and `email` with actual Firebase Authentication data
+- ⚠️ Update backend URL from placeholder to actual deployed Cloud Functions URL
+- ⚠️ Add user feedback for successful/failed onboarding completion
+- ⚠️ Implement redirect to dashboard after successful onboarding
+
+---
+
 ## 1. User Onboarding & Authentication
 
 ### Frontend
-- [ ] Implement UI for user registration and login pages.
+- [x] Implement UI for user registration and login pages.
 - [ ] Integrate with **Firebase Authentication** for email/password and Google sign-in.
-- [ ] Develop the multi-step onboarding flow to collect user profile data, study subjects, and initial goals.
-- [ ] Send the collected onboarding data to the backend.
+- [x] Develop the multi-step onboarding flow to collect user profile data, study subjects, and initial goals.
+- [x] Send the collected onboarding data to the backend.
 - [ ] Implement protected routes that are only accessible to logged-in users.
 
 ### Backend (Cloud Functions)
-- [ ] Create a secure `/onboarding` endpoint.
-- [ ] When a new user signs up, trigger a function to create a corresponding user document in **Firestore**.
-- [ ] Store the onboarding data in the user's Firestore document.
+- [x] Create a secure `/onboarding` endpoint.
+- [x] When a new user signs up, trigger a function to create a corresponding user document in **Firestore**.
+- [x] Store the onboarding data in the user's Firestore document.
 
 ## 2. Dashboard
 
