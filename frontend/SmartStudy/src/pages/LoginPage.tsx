@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bot, ArrowRight } from 'lucide-react';
 import Button from '../components/ui/Button';
+import { signIn } from '../services/auth';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -20,11 +21,10 @@ const LoginPage = () => {
     }
 
     try {
-      // TODO: Add Firebase login logic here
-      console.log('Logging in with:', { email, password });
-      // On successful login:
-      // const user = await firebase.auth().signInWithEmailAndPassword(email, password);
-      // navigate('/dashboard');
+      const user = await signIn(email, password);
+      console.log('Logged in:', user.uid);
+      // For now, route to onboarding; later, check if already onboarded
+      navigate('/onboarding');
     } catch (err) {
       setError('Failed to log in. Please check your credentials.');
       console.error(err);
