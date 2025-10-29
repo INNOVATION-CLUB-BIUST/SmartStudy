@@ -3,124 +3,103 @@ import * as admin from "firebase-admin";
 import * as express from "express";
 import * as cors from "cors";
 
+// Initialize Firebase Admin
 admin.initializeApp();
+
+// Get Firestore instance
 const db = admin.firestore();
 
+// Connect to emulator when running locally
+if (process.env.FUNCTIONS_EMULATOR === 'true') {
+  console.log('🔧 Connecting to Firestore emulator at localhost:8080');
+  db.settings({
+    host: 'localhost:8080',
+    ssl: false,
+  });
+}
+
 const app = express();
+
+// Simple CORS - allow all origins in development
 app.use(cors({ origin: true }));
 app.use(express.json());
 
+// Test endpoint
 app.get("/hello", (req, res) => {
-  res.send("Hello from Firebase!");
+  res.json({ message: "Hello from Firebase!" });
 });
 
-/**
- * Onboarding endpoint - Creates user profile and stores initial data
- * Expected body: {
- *   uid: string,
- *   email: string,
- *   profile: {
- *     firstName: string,
- *     lastName: string,
- *     institution?: string,
- *     program?: string,
- *     year?: string
- *   },
- *   subjects: string[],
- *   goals: Array<{
- *     title: string,
- *     description?: string,
- *     targetDate?: string,
- *     category?: string
- *   }>,
- *   preferences: {
- *     studyTimePerDay?: number,
- *     preferredStudyTimes?: string[],
- *     breakDuration?: number,
- *     notifications?: boolean
- *   }
- * }
- */
-app.post("/onboarding", async (req, res) => {
+// Simple onboarding endpoint - no auth for now
+app.post("/onboarding", async (req, res): Promise<void> => {
   try {
-    const { uid, email, profile, subjects, goals, preferences } = req.body;
-
-    // Validate required fields
-    if (!uid || !email) {
-      return res.status(400).send({ 
-        error: "Missing required fields: uid and email are required" 
-      });
-    }
-
-    if (!profile || !profile.firstName || !profile.lastName) {
-      return res.status(400).send({ 
-        error: "Missing required profile fields: firstName and lastName are required" 
-      });
-    }
-
-    // Create user document in Firestore
-    const userRef = db.collection("users").doc(uid);
+    console.log("Received onboarding request:", JSON.stringify(req.body, null, 2));
     
+    const { userId, email, profile, subjects, goals, preferences } = req.body;
+
+    // Basic validation
+    if (!userId || !email) {
+      res.status(400).json({ 
+        error: "Missing required fields: userId and email" 
+      });
+      return;
+    }
+
+    // Save user profile to Firestore
+    const userRef = db.collection("users").doc(userId);
+    const now = new Date().toISOString();
     const userData = {
-      uid,
+      uid: userId,
       email,
-      profile: {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        institution: profile.institution || "",
-        program: profile.program || "",
-        year: profile.year || "",
-      },
+      firstName: profile?.firstName || "",
+      lastName: profile?.lastName || "",
+      university: profile?.university || "",
+      major: profile?.major || "",
+      yearOfStudy: profile?.yearOfStudy || "",
+      studentId: profile?.studentId || "",
+      dateOfBirth: profile?.dateOfBirth || "",
       subjects: subjects || [],
-      preferences: {
-        studyTimePerDay: preferences?.studyTimePerDay || 120, // default 2 hours in minutes
-        preferredStudyTimes: preferences?.preferredStudyTimes || [],
-        breakDuration: preferences?.breakDuration || 15,
-        notifications: preferences?.notifications !== false, // default true
-      },
+      preferences: preferences || {},
       onboardingCompleted: true,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: now,
+      updatedAt: now,
     };
 
     await userRef.set(userData);
+    console.log("User data saved successfully for:", userId);
 
-    // If goals are provided, create them in the goals collection
+    // Save goals if provided
     if (goals && Array.isArray(goals) && goals.length > 0) {
       const batch = db.batch();
       
-      goals.forEach((goal) => {
+      goals.forEach((goal: any) => {
         const goalRef = db.collection("goals").doc();
         batch.set(goalRef, {
-          userId: uid,
-          title: goal.title,
-          description: goal.description || "",
-          targetDate: goal.targetDate || null,
-          category: goal.category || "academic",
-          status: "active",
-          progress: 0,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          userId,
+          title: goal.title || "",
+          targetDate: goal.targetDate || "",
+          priority: goal.priority || "medium",
+          createdAt: now,
         });
       });
 
       await batch.commit();
+      console.log(`Saved ${goals.length} goals for user:`, userId);
     }
 
-    res.status(201).send({ 
+    res.status(201).json({ 
+      success: true,
       message: "Onboarding completed successfully!",
-      userId: uid,
-      data: userData
+      userId
     });
 
   } catch (error) {
     console.error("Error during onboarding:", error);
-    res.status(500).send({ 
+    res.status(500).json({ 
       error: "Failed to complete onboarding",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error.message : String(error)
     });
   }
 });
 
-// Expose Express API as a single Cloud Function:
+// Export the Express app as a Cloud Function
 exports.api = functions.https.onRequest(app);
