@@ -1,28 +1,30 @@
-import { getIdToken } from './auth';
-
 const baseUrl = (import.meta.env.VITE_FUNCTIONS_BASE_URL as string | undefined)?.replace(/\/$/, '') || '';
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = await getIdToken();
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
   if (!baseUrl) {
     console.warn('VITE_FUNCTIONS_BASE_URL is not set. Requests will likely fail.');
   }
 
-  const res = await fetch(`${baseUrl}${path.startsWith('/') ? path : `/${path}`}`, {
+  const url = `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+  console.log('API Request:', url, options.method || 'GET');
+
+  const res = await fetch(url, {
     ...options,
     headers,
   });
 
   const data = await res.json().catch(() => ({}));
+  
   if (!res.ok) {
-    throw Object.assign(new Error('Request failed'), { status: res.status, data });
+    console.error('API Error:', res.status, data);
+    throw Object.assign(new Error(data.error || 'Request failed'), { status: res.status, data });
   }
+  
   return data as T;
 }
 
