@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bot, ArrowRight } from 'lucide-react';
-import Button from '../components/ui/Button';
 import { signIn } from '../services/auth';
 
 const LoginPage = () => {
@@ -23,8 +22,7 @@ const LoginPage = () => {
     try {
       const user = await signIn(email, password);
       console.log('Logged in:', user.uid);
-      // For now, route to onboarding; later, check if already onboarded
-      navigate('/onboarding');
+      navigate('/dashboard');
     } catch (err) {
       setError('Failed to log in. Please check your credentials.');
       console.error(err);
@@ -105,10 +103,10 @@ const LoginPage = () => {
           </div>
 
           <div>
-            <Button type="submit" variant="primary" className="w-full flex justify-center py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-orange-500 to-yellow-500 text-black hover:from-orange-400 hover:to-yellow-400">
+            <button type="submit" className="w-full inline-flex items-center justify-center py-3 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-orange-500 to-yellow-500 text-black hover:from-orange-400 hover:to-yellow-400">
               Log In
               <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            </button>
           </div>
         </form>
 
