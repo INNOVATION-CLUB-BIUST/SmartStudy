@@ -47,26 +47,6 @@ firebase emulators:start
 - **Firestore**: http://localhost:8080
 - **API Endpoint**: http://localhost:5001/smartstudy-26356/us-central1/api
 
-## Environment Configuration
-
-### Frontend (.env)
-```bash
-# Firebase Config
-VITE_FIREBASE_API_KEY="AIzaSyB1dNw5BhrK4fskmNxkPyVdTW9xGLpNjL0"
-VITE_FIREBASE_AUTH_DOMAIN="smartstudy-26356.firebaseapp.com"
-VITE_FIREBASE_PROJECT_ID="smartstudy-26356"
-VITE_FIREBASE_STORAGE_BUCKET="smartstudy-26356.appspot.com"
-VITE_FIREBASE_MESSAGING_SENDER_ID="487695153037"
-VITE_FIREBASE_APP_ID="1:487695153037:web:8e9bd2840e98378affefc4"
-VITE_FIREBASE_MEASUREMENT_ID="G-E5Q1KZ76F7"
-
-# Functions URL
-# Local emulator:
-VITE_FUNCTIONS_BASE_URL="http://localhost:5001/smartstudy-26356/us-central1/api"
-
-# Production (when deployed):
-# VITE_FUNCTIONS_BASE_URL="https://us-central1-smartstudy-26356.cloudfunctions.net/api"
-```
 
 ### Backend
 No additional environment variables needed. Firebase Admin SDK automatically detects emulators when running.
