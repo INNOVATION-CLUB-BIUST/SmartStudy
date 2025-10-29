@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import ProgressIndicator from './ProgressIndicator';
 import ProfileStep from './ProfileStep';
@@ -7,23 +7,100 @@ import StudyTimeStep from './StudyTimeStep';
 import ScheduleStep from './ScheduleStep';
 import EventPrepStep from './EventPrepStep';
 import OptimizationStep from './OptimizationStep';
-import Button from '../ui/Button';
+import { getCurrentUser } from '../../services/auth';
+import { postOnboarding } from '../../services/api';
+
+// Extended types to match actual form data from step components
+interface ExtendedProfileData {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  studentId?: string;
+  university?: string;
+  yearOfStudy?: string;
+  major?: string;
+  dateOfBirth?: string;
+  [key: string]: string | undefined;
+}
+
+interface ExtendedGoalsData {
+  primaryGoal?: string;
+  gpaTarget?: string;
+  studyHoursPerWeek?: string;
+  focusAreas?: string[];
+  graduationDate?: string;
+  careerGoals?: string;
+  [key: string]: string | string[] | undefined;
+}
+
+interface ExtendedStudyTimesData {
+  preferredStudyTime?: string;
+  studyDuration?: string;
+  breakDuration?: string;
+  studyEnvironment?: string;
+  focusLevel?: string;
+  studyMethods?: string[];
+  distractions?: string[];
+  [key: string]: string | string[] | undefined;
+}
+
+interface ExtendedScheduleData {
+  weeklySchedule?: Record<string, Record<string, string>>;
+  classSchedule?: unknown[];
+  extracurricularActivities?: unknown[];
+  workSchedule?: Record<string, unknown>;
+  freeTime?: string;
+  studyBlocks?: unknown[];
+  [key: string]: unknown;
+}
+
+interface ExtendedEventPrepData {
+  upcomingExams?: unknown[];
+  assignmentDeadlines?: unknown[];
+  projectDeadlines?: unknown[];
+  prepTimePreference?: string;
+  studyIntensity?: string;
+  reminderPreferences?: string[];
+  stressLevel?: string;
+  [key: string]: unknown;
+}
+
+interface ExtendedOptimizationData {
+  aiPreferences?: string[];
+  learningStyle?: string;
+  productivityTools?: string[];
+  notificationSettings?: Record<string, unknown>;
+  privacySettings?: Record<string, unknown>;
+  optimizationGoals?: string[];
+  [key: string]: unknown;
+}
+
+interface ExtendedOnboardingFormData {
+  profile: ExtendedProfileData;
+  goals: ExtendedGoalsData;
+  studyTimes: ExtendedStudyTimesData;
+  schedule: ExtendedScheduleData;
+  eventPrep: ExtendedEventPrepData;
+  optimization: ExtendedOptimizationData;
+}
 
 const OnboardingFlow = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ExtendedOnboardingFormData>({
     profile: {},
     goals: {},
-    studyTime: {},
+    studyTimes: {},
     schedule: {},
     eventPrep: {},
-    optimization: {}
+    optimization: {},
   });
 
   const steps = [
     { id: 'profile', title: 'Profile Setup', component: ProfileStep },
     { id: 'goals', title: 'Academic Goals', component: GoalsStep },
-    { id: 'studyTime', title: 'Study Preferences', component: StudyTimeStep },
+    { id: 'studyTimes', title: 'Study Preferences', component: StudyTimeStep },
     { id: 'schedule', title: 'Schedule Setup', component: ScheduleStep },
     { id: 'eventPrep', title: 'Event Preparation', component: EventPrepStep },
     { id: 'optimization', title: 'Optimization', component: OptimizationStep },
@@ -41,17 +118,55 @@ const OnboardingFlow = () => {
     }
   };
 
-  const handleStepData = (stepId: string, data: any) => {
+  const handleStepData = (stepId: string, data: Record<string, unknown>) => {
     setFormData(prev => ({
       ...prev,
       [stepId]: data
     }));
   };
 
-  const handleComplete = () => {
-    // Handle onboarding completion
-    console.log('Onboarding completed:', formData);
-    // Redirect to dashboard or main app
+  const handleComplete = async () => {
+    // Prepare payload for backend
+    const user = getCurrentUser();
+    const uid = user?.uid || "demo-uid"; // TODO: require auth before onboarding
+    const email = user?.email || formData.profile.email || "demo@example.com";
+
+    // Map frontend data to backend payload
+    const payload = {
+      uid,
+      email,
+      profile: {
+        firstName: formData.profile.firstName || '',
+        lastName: formData.profile.lastName || '',
+        institution: formData.profile.university || '',
+        program: formData.profile.major || '',
+        year: formData.profile.yearOfStudy || '',
+      },
+      subjects: formData.goals.focusAreas || [],
+      goals: [
+        {
+          title: formData.goals.primaryGoal || '',
+          description: formData.goals.careerGoals || '',
+          targetDate: formData.goals.graduationDate || '',
+          category: 'academic',
+        }
+      ],
+      preferences: {
+        studyTimePerDay: Number(formData.goals.studyHoursPerWeek) || 120,
+        preferredStudyTimes: formData.studyTimes.preferredStudyTime ? [formData.studyTimes.preferredStudyTime] : [],
+        breakDuration: Number(formData.studyTimes.breakDuration) || 15,
+        notifications: true,
+      },
+    };
+
+    try {
+      const result = await postOnboarding(payload);
+      console.log('Onboarding completed:', result);
+      // TODO: Redirect to dashboard or main app
+    } catch (error) {
+      console.error('Onboarding error:', error);
+      // TODO: Show error to user
+    }
   };
 
   const CurrentStepComponent = steps[currentStep].component;
@@ -93,8 +208,8 @@ const OnboardingFlow = () => {
       <div className="max-w-4xl mx-auto px-4 pb-8">
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-orange-500/20 p-8">
           <CurrentStepComponent 
-            data={formData[steps[currentStep].id]}
-            onDataChange={(data) => handleStepData(steps[currentStep].id, data)}
+            data={formData[steps[currentStep].id as keyof ExtendedOnboardingFormData]}
+            onDataChange={(data: Record<string, unknown>) => handleStepData(steps[currentStep].id, data)}
             onNext={handleNext}
             onPrevious={handlePrevious}
             isFirstStep={currentStep === 0}
