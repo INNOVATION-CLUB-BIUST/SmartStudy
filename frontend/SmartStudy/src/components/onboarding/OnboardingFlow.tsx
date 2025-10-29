@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import ProgressIndicator from './ProgressIndicator';
 import ProfileStep from './ProfileStep';
 import GoalsStep from './GoalsStep';
@@ -7,7 +8,7 @@ import StudyTimeStep from './StudyTimeStep';
 import ScheduleStep from './ScheduleStep';
 import EventPrepStep from './EventPrepStep';
 import OptimizationStep from './OptimizationStep';
-import { getCurrentUser } from '../../services/auth';
+import { getCurrentUser, signUp } from '../../services/auth';
 import { postOnboarding } from '../../services/api';
 
 // Extended types to match actual form data from step components
@@ -87,14 +88,28 @@ interface ExtendedOnboardingFormData {
 }
 
 const OnboardingFlow = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<ExtendedOnboardingFormData>({
-    profile: {},
-    goals: {},
-    studyTimes: {},
-    schedule: {},
-    eventPrep: {},
-    optimization: {},
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [userCreated, setUserCreated] = useState(false);
+  const [formData, setFormData] = useState<ExtendedOnboardingFormData>(() => {
+    const draft = localStorage.getItem('onboardingDraft');
+    if (draft) {
+      try {
+        return JSON.parse(draft) as ExtendedOnboardingFormData;
+      } catch { 
+        // ignore malformed draft
+      }
+    }
+    return {
+      profile: {},
+      goals: {},
+      studyTimes: {},
+      schedule: {},
+      eventPrep: {},
+      optimization: {},
+    };
   });
 
   const steps = [
@@ -118,54 +133,102 @@ const OnboardingFlow = () => {
     }
   };
 
-  const handleStepData = (stepId: string, data: Record<string, unknown>) => {
-    setFormData(prev => ({
-      ...prev,
-      [stepId]: data
-    }));
+  const handleStepData = async (stepId: string, data: Record<string, unknown>) => {
+    setFormData(prev => {
+      const next = { ...prev, [stepId]: data } as ExtendedOnboardingFormData;
+      localStorage.setItem('onboardingDraft', JSON.stringify(next));
+      return next;
+    });
+
+    // If profile step is completed and user account hasn't been created yet, create it
+    if (stepId === 'profile' && !userCreated && currentStep === 0) {
+      const profileData = data as ExtendedProfileData;
+
+      // If user already logged in (via login), skip signup
+      const existingUser = getCurrentUser();
+      if (existingUser) return;
+      
+      // Validate required fields
+      if (!profileData.email || !profileData.password) {
+        setError('Email and password are required');
+        return;
+      }
+
+      if (profileData.password !== profileData.confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError('');
+        
+        // Create Firebase user account
+        const user = await signUp(profileData.email, profileData.password);
+        console.log('User account created:', user.uid);
+        setUserCreated(true);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to create account';
+        setError(errorMessage);
+        console.error('Signup error:', err);
+        throw err; // Prevent navigation to next step
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   const handleComplete = async () => {
-    // Prepare payload for backend
-    const user = getCurrentUser();
-    const uid = user?.uid || "demo-uid"; // TODO: require auth before onboarding
-    const email = user?.email || formData.profile.email || "demo@example.com";
+    setIsLoading(true);
+    setError('');
 
-    // Map frontend data to backend payload
+    const user = getCurrentUser();
+    
+    if (!user) {
+      setError('You must be logged in to complete onboarding');
+      setIsLoading(false);
+      return;
+    }
+
+    // Simple payload - just what backend needs
     const payload = {
-      uid,
-      email,
+      userId: user.uid,
+      email: user.email || formData.profile.email || '',
       profile: {
         firstName: formData.profile.firstName || '',
         lastName: formData.profile.lastName || '',
-        institution: formData.profile.university || '',
-        program: formData.profile.major || '',
-        year: formData.profile.yearOfStudy || '',
+        university: formData.profile.university || '',
+        major: formData.profile.major || '',
+        yearOfStudy: formData.profile.yearOfStudy || '',
+        studentId: formData.profile.studentId || '',
+        dateOfBirth: formData.profile.dateOfBirth || '',
       },
       subjects: formData.goals.focusAreas || [],
-      goals: [
-        {
-          title: formData.goals.primaryGoal || '',
-          description: formData.goals.careerGoals || '',
-          targetDate: formData.goals.graduationDate || '',
-          category: 'academic',
-        }
-      ],
+      goals: formData.goals.primaryGoal ? [{
+        title: formData.goals.primaryGoal,
+        targetDate: formData.goals.graduationDate || '',
+        priority: 'high'
+      }] : [],
       preferences: {
-        studyTimePerDay: Number(formData.goals.studyHoursPerWeek) || 120,
-        preferredStudyTimes: formData.studyTimes.preferredStudyTime ? [formData.studyTimes.preferredStudyTime] : [],
-        breakDuration: Number(formData.studyTimes.breakDuration) || 15,
-        notifications: true,
+        studyTimePreference: formData.studyTimes.preferredStudyTime || 'morning',
+        weeklyStudyHours: Number(formData.goals.studyHoursPerWeek) || 20,
       },
     };
+
+    console.log('Sending payload:', payload);
 
     try {
       const result = await postOnboarding(payload);
       console.log('Onboarding completed:', result);
-      // TODO: Redirect to dashboard or main app
+      
+      localStorage.removeItem('onboardingDraft');
+      setIsLoading(false);
+      navigate('/dashboard');
     } catch (error) {
+      setIsLoading(false);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to complete onboarding';
+      setError(errorMessage);
       console.error('Onboarding error:', error);
-      // TODO: Show error to user
     }
   };
 
@@ -203,6 +266,16 @@ const OnboardingFlow = () => {
           steps={steps}
         />
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="max-w-4xl mx-auto px-4 pb-4">
+          <div className="bg-red-500/20 border border-red-500 text-red-300 p-4 rounded-lg">
+            <p className="font-semibold">Error</p>
+            <p className="text-sm">{error}</p>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 pb-8">
@@ -253,9 +326,12 @@ const OnboardingFlow = () => {
           {currentStep === steps.length - 1 ? (
             <button
               onClick={handleComplete}
-              className="flex items-center px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-black font-semibold rounded-lg hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 shadow-lg hover:shadow-xl"
+              disabled={isLoading}
+              className={`flex items-center px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-black font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl ${
+                isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:from-orange-400 hover:to-yellow-400'
+              }`}
             >
-              Complete Setup
+              {isLoading ? 'Completing Setup...' : 'Complete Setup'}
               <CheckCircle className="h-4 w-4 ml-2" />
             </button>
           ) : (
