@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { User, Mail, GraduationCap, Calendar } from 'lucide-react';
+import { getCurrentUser } from '../../services/auth';
 
 interface ProfileStepProps {
-  data: any;
-  onDataChange: (data: any) => void;
+  data: Record<string, unknown>;
+  onDataChange: (data: Record<string, unknown>) => void;
   onNext: () => void;
   onPrevious: () => void;
   isFirstStep: boolean;
@@ -12,19 +13,25 @@ interface ProfileStepProps {
 }
 
 const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
+  const profileData = data as Record<string, string | undefined>;
+  
+  const currentUser = getCurrentUser();
+  const isLoggedIn = !!currentUser;
+  const existingUserEmail = currentUser?.email || '';
   const [formData, setFormData] = useState({
-    firstName: data?.firstName || '',
-    lastName: data?.lastName || '',
-    email: data?.email || '',
-    password: data?.password || '',
-    confirmPassword: data?.confirmPassword || '',
-    studentId: data?.studentId || '',
-    university: data?.university || 'BIUST',
-    yearOfStudy: data?.yearOfStudy || '',
-    major: data?.major || '',
-    dateOfBirth: data?.dateOfBirth || '',
+    firstName: profileData?.firstName || '',
+    lastName: profileData?.lastName || '',
+    email: profileData?.email || existingUserEmail,
+    password: profileData?.password || '',
+    confirmPassword: profileData?.confirmPassword || '',
+    studentId: profileData?.studentId || '',
+    university: profileData?.university || 'BIUST',
+    yearOfStudy: profileData?.yearOfStudy || '',
+    major: profileData?.major || '',
+    dateOfBirth: profileData?.dateOfBirth || '',
   });
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     const newData = { ...formData, [field]: value };
@@ -32,14 +39,49 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
     onDataChange(newData);
   };
 
-  const handleNext = () => {
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+  const handleNext = async () => {
+    setError('');
+    
+    // Validate required fields
+    if (!formData.firstName || !formData.lastName) {
+      setError('First name and last name are required');
       return;
     }
-    setError('');
-    onDataChange(formData);
-    onNext();
+    
+    if (!formData.email) {
+      setError('Email is required');
+      return;
+    }
+    
+    if (!isLoggedIn) {
+      if (!formData.password) {
+        setError('Password is required');
+        return;
+      }
+      if (formData.password.length < 6) {
+        setError('Password must be at least 6 characters');
+        return;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
+    }
+    
+    try {
+      setIsSubmitting(true);
+      onDataChange(formData);
+      
+      // The parent component will handle user creation
+      await new Promise(resolve => setTimeout(resolve, 100)); // Small delay for state update
+      
+      onNext();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const majors = [
@@ -105,33 +147,37 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
               onChange={(e) => handleInputChange('email', e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
               placeholder="your.email@biust.ac.bw"
+              disabled={isLoggedIn}
             />
           </div>
         </div>
 
-        {/* Password */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-orange-300">Password</label>
-          <input
-            type="password"
-            value={formData.password}
-            onChange={(e) => handleInputChange('password', e.target.value)}
-            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
-            placeholder="Create a password"
-          />
-        </div>
+        {/* Password fields (only when not logged in) */}
+        {!isLoggedIn && (
+          <>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-orange-300">Password</label>
+              <input
+                type="password"
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+                placeholder="Create a password"
+              />
+            </div>
 
-        {/* Confirm Password */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-orange-300">Confirm Password</label>
-          <input
-            type="password"
-            value={formData.confirmPassword}
-            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
-            placeholder="Confirm your password"
-          />
-        </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-orange-300">Confirm Password</label>
+              <input
+                type="password"
+                value={formData.confirmPassword}
+                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+                placeholder="Confirm your password"
+              />
+            </div>
+          </>
+        )}
 
         {/* Student ID */}
         <div className="space-y-2">
@@ -208,9 +254,12 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
       <div className="flex justify-end">
         <button
           onClick={handleNext}
-          className="px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-black font-semibold rounded-lg hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 shadow-lg hover:shadow-xl"
+          disabled={isSubmitting}
+          className={`px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-black font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl ${
+            isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:from-orange-400 hover:to-yellow-400'
+          }`}
         >
-          Continue
+          {isSubmitting ? (isLoggedIn ? 'Saving...' : 'Creating Account...') : 'Continue'}
         </button>
       </div>
     </div>
