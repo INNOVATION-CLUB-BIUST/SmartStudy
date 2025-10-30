@@ -1,18 +1,13 @@
 import { useState } from 'react';
-import { User, Mail, GraduationCap, Calendar } from 'lucide-react';
+import { User, Mail, GraduationCap } from 'lucide-react';
 import { getCurrentUser } from '../../services/auth';
 
 interface ProfileStepProps {
   data: Record<string, unknown>;
   onDataChange: (data: Record<string, unknown>) => void;
-  onNext: () => void;
-  onPrevious: () => void;
-  isFirstStep: boolean;
-  isLastStep: boolean;
-  onComplete: () => void;
 }
 
-const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
+const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
   const profileData = data as Record<string, string | undefined>;
   
   const currentUser = getCurrentUser();
@@ -25,77 +20,15 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
     password: profileData?.password || '',
     confirmPassword: profileData?.confirmPassword || '',
     studentId: profileData?.studentId || '',
-    university: profileData?.university || 'BIUST',
     yearOfStudy: profileData?.yearOfStudy || '',
-    major: profileData?.major || '',
-    dateOfBirth: profileData?.dateOfBirth || '',
+    university: profileData?.university || 'BIUST',
   });
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     const newData = { ...formData, [field]: value };
     setFormData(newData);
     onDataChange(newData);
   };
-
-  const handleNext = async () => {
-    setError('');
-    
-    // Validate required fields
-    if (!formData.firstName || !formData.lastName) {
-      setError('First name and last name are required');
-      return;
-    }
-    
-    if (!formData.email) {
-      setError('Email is required');
-      return;
-    }
-    
-    if (!isLoggedIn) {
-      if (!formData.password) {
-        setError('Password is required');
-        return;
-      }
-      if (formData.password.length < 6) {
-        setError('Password must be at least 6 characters');
-        return;
-      }
-      if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match');
-        return;
-      }
-    }
-    
-    try {
-      setIsSubmitting(true);
-      onDataChange(formData);
-      
-      // The parent component will handle user creation
-      await new Promise(resolve => setTimeout(resolve, 100)); // Small delay for state update
-      
-      onNext();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      setError(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const majors = [
-    'Computer Science',
-    'Engineering',
-    'Business Administration',
-    'Medicine',
-    'Law',
-    'Arts & Humanities',
-    'Sciences',
-    'Other'
-  ];
-
-  const years = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year', 'Graduate'];
 
   return (
     <div className="space-y-8">
@@ -105,11 +38,9 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
         </div>
         <h2 className="text-3xl font-bold text-white mb-2">Tell us about yourself</h2>
         <p className="text-slate-300">
-          Help us personalize your SmartStudy experience by sharing your academic profile.
+          Let's start with the basics to personalize your SmartStudy experience.
         </p>
       </div>
-
-      {error && <p className="text-red-500 text-center">{error}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* First Name */}
@@ -147,13 +78,19 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
               onChange={(e) => handleInputChange('email', e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
               placeholder="your.email@biust.ac.bw"
-              disabled={isLoggedIn}
+              // Allow editing even when logged in to enable creating a new account
+              disabled={false}
             />
           </div>
+          {isLoggedIn && (
+            <p className="text-xs text-slate-400 mt-1">
+              Currently signed in as {existingUserEmail}. Enter a different email to create a new account.
+            </p>
+          )}
         </div>
 
-        {/* Password fields (only when not logged in) */}
-        {!isLoggedIn && (
+        {/* Password fields: show when not logged in OR when user enters a different email than current session */}
+        {(!isLoggedIn || formData.email !== existingUserEmail) && (
           <>
             <div className="space-y-2">
               <label className="text-sm font-medium text-orange-300">Password</label>
@@ -179,18 +116,6 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
           </>
         )}
 
-        {/* Student ID */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-orange-300">Student ID</label>
-          <input
-            type="text"
-            value={formData.studentId}
-            onChange={(e) => handleInputChange('studentId', e.target.value)}
-            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
-            placeholder="Enter your student ID"
-          />
-        </div>
-
         {/* University */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-orange-300">University</label>
@@ -206,8 +131,20 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
           </div>
         </div>
 
-        {/* Year of Study */}
+        {/* Student ID */}
         <div className="space-y-2">
+          <label className="text-sm font-medium text-orange-300">Student ID</label>
+          <input
+            type="text"
+            value={formData.studentId}
+            onChange={(e) => handleInputChange('studentId', e.target.value)}
+            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+            placeholder="Enter your student ID"
+          />
+        </div>
+
+        {/* Year of Study */}
+        <div className="space-y-2 md:col-span-2">
           <label className="text-sm font-medium text-orange-300">Year of Study</label>
           <select
             value={formData.yearOfStudy}
@@ -215,54 +152,15 @@ const ProfileStep = ({ data, onDataChange, onNext }: ProfileStepProps) => {
             className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
           >
             <option value="">Select your year</option>
-            {years.map((year) => (
-              <option key={year} value={year}>{year}</option>
-            ))}
+            <option value="1st Year">1st Year</option>
+            <option value="2nd Year">2nd Year</option>
+            <option value="3rd Year">3rd Year</option>
+            <option value="4th Year">4th Year</option>
+            <option value="5th Year">5th Year</option>
+            <option value="Graduate">Graduate</option>
           </select>
         </div>
-
-        {/* Major */}
-        <div className="space-y-2 md:col-span-2">
-          <label className="text-sm font-medium text-orange-300">Major/Field of Study</label>
-          <select
-            value={formData.major}
-            onChange={(e) => handleInputChange('major', e.target.value)}
-            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
-          >
-            <option value="">Select your major</option>
-            {majors.map((major) => (
-              <option key={major} value={major}>{major}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Date of Birth */}
-        <div className="space-y-2 md:col-span-2">
-          <label className="text-sm font-medium text-orange-300">Date of Birth</label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-            <input
-              type="date"
-              value={formData.dateOfBirth}
-              onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end">
-        <button
-          onClick={handleNext}
-          disabled={isSubmitting}
-          className={`px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-black font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl ${
-            isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:from-orange-400 hover:to-yellow-400'
-          }`}
-        >
-          {isSubmitting ? (isLoggedIn ? 'Saving...' : 'Creating Account...') : 'Continue'}
-        </button>
-      </div>
-    </div>
+      </div>    </div>
   );
 };
 
