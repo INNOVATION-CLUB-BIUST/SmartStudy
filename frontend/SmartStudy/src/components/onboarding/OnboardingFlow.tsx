@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ProgressIndicator from './ProgressIndicator';
 import ProfileStep from './ProfileStep';
-import GoalsStep from './GoalsStep';
-import StudyTimeStep from './StudyTimeStep';
-import ScheduleStep from './ScheduleStep';
-import EventPrepStep from './EventPrepStep';
-import OptimizationStep from './OptimizationStep';
-import { getCurrentUser, signUp } from '../../services/auth';
+import GoalsStep, { type GoalsStepData } from './GoalsStep';
+import StudyTimeStep, { type StudyTimeData } from './StudyTimeStep';
+import ScheduleStep, { type ScheduleData } from './ScheduleStep';
+import EventPrepStep, { type EventPrepData } from './EventPrepStep';
+import OptimizationStep, { type OptimizationData } from './OptimizationStep';
+import { getCurrentUser, signUp, subscribeToAuth } from '../../services/auth';
+import type { User } from 'firebase/auth';
 import { postOnboarding } from '../../services/api';
 
 // Extended types to match actual form data from step components
@@ -91,15 +92,18 @@ const OnboardingFlow = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const [error, setError] = useState('');
   const [userCreated, setUserCreated] = useState(false);
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
   const [formData, setFormData] = useState<ExtendedOnboardingFormData>(() => {
     const draft = localStorage.getItem('onboardingDraft');
     if (draft) {
       try {
         return JSON.parse(draft) as ExtendedOnboardingFormData;
       } catch { 
-        // ignore malformed draft
+        // 5
       }
     }
     return {
@@ -121,7 +125,55 @@ const OnboardingFlow = () => {
     { id: 'optimization', title: 'Optimization', component: OptimizationStep },
   ];
 
-  const handleNext = () => {
+  // Listen to auth state and block access if signed in
+  useEffect(() => {
+    const unsub = subscribeToAuth((u) => {
+      setAuthUser(u);
+      setAuthReady(true);
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    if (authReady && authUser && !isCompleting) {
+      navigate('/dashboard');
+    }
+  }, [authReady, authUser, isCompleting, navigate]);
+
+  const handleNext = async () => {
+    setError('');
+    
+    // Validate ProfileStep before proceeding
+    if (currentStep === 0) {
+      const profileData = formData.profile;
+      
+      if (!profileData.firstName || !profileData.lastName) {
+        setError('First name and last name are required');
+        return;
+      }
+      
+      if (!profileData.email) {
+        setError('Email is required');
+        return;
+      }
+      
+      // Always validate password at the start since onboarding occurs before account creation
+      if (!userCreated) {
+        if (!profileData.password) {
+          setError('Password is required');
+          return;
+        }
+        if (profileData.password.length < 6) {
+          setError('Password must be at least 6 characters');
+          return;
+        }
+        if (profileData.password !== profileData.confirmPassword) {
+          setError('Passwords do not match');
+          return;
+        }
+      }
+    }
+    
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -133,61 +185,40 @@ const OnboardingFlow = () => {
     }
   };
 
-  const handleStepData = async (stepId: string, data: Record<string, unknown>) => {
+  const handleStepData = (stepId: string, data: unknown) => {
     setFormData(prev => {
       const next = { ...prev, [stepId]: data } as ExtendedOnboardingFormData;
       localStorage.setItem('onboardingDraft', JSON.stringify(next));
       return next;
     });
+  };
 
-    // If profile step is completed and user account hasn't been created yet, create it
-    if (stepId === 'profile' && !userCreated && currentStep === 0) {
-      const profileData = data as ExtendedProfileData;
+  const handleComplete = async () => {
+    setIsLoading(true);
+    setIsCompleting(true);
+    setError('');
 
-      // If user already logged in (via login), skip signup
-      const existingUser = getCurrentUser();
-      if (existingUser) return;
-      
-      // Validate required fields
-      if (!profileData.email || !profileData.password) {
-        setError('Email and password are required');
+    let user = getCurrentUser();
+    // Create the account now if not signed in
+    if (!user) {
+      const { email, password } = formData.profile as { email?: string; password?: string };
+      if (!email || !password) {
+        setError('Email and password are required to create your account');
+        setIsLoading(false);
+        setIsCompleting(false);
         return;
       }
-
-      if (profileData.password !== profileData.confirmPassword) {
-        setError('Passwords do not match');
-        return;
-      }
-
       try {
-        setIsLoading(true);
-        setError('');
-        
-        // Create Firebase user account
-        const user = await signUp(profileData.email, profileData.password);
-        console.log('User account created:', user.uid);
+        user = await signUp(email, password);
         setUserCreated(true);
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to create account';
         setError(errorMessage);
         console.error('Signup error:', err);
-        throw err; // Prevent navigation to next step
-      } finally {
         setIsLoading(false);
+        setIsCompleting(false);
+        return;
       }
-    }
-  };
-
-  const handleComplete = async () => {
-    setIsLoading(true);
-    setError('');
-
-    const user = getCurrentUser();
-    
-    if (!user) {
-      setError('You must be logged in to complete onboarding');
-      setIsLoading(false);
-      return;
     }
 
     // Simple payload - just what backend needs
@@ -223,16 +254,18 @@ const OnboardingFlow = () => {
       
       localStorage.removeItem('onboardingDraft');
       setIsLoading(false);
+      setIsCompleting(false);
       navigate('/dashboard');
     } catch (error) {
       setIsLoading(false);
+      setIsCompleting(false);
       const errorMessage = error instanceof Error ? error.message : 'Failed to complete onboarding';
       setError(errorMessage);
       console.error('Onboarding error:', error);
     }
   };
 
-  const CurrentStepComponent = steps[currentStep].component;
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-800 text-white">
@@ -280,15 +313,42 @@ const OnboardingFlow = () => {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 pb-8">
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-orange-500/20 p-8">
-          <CurrentStepComponent 
-            data={formData[steps[currentStep].id as keyof ExtendedOnboardingFormData]}
-            onDataChange={(data: Record<string, unknown>) => handleStepData(steps[currentStep].id, data)}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-            isFirstStep={currentStep === 0}
-            isLastStep={currentStep === steps.length - 1}
-            onComplete={handleComplete}
-          />
+          {steps[currentStep].id === 'profile' && (
+            <ProfileStep
+              data={formData.profile}
+              onDataChange={(data) => handleStepData('profile', data)}
+            />
+          )}
+          {steps[currentStep].id === 'goals' && (
+            <GoalsStep
+              data={formData.goals as Partial<GoalsStepData>}
+              onDataChange={(data: GoalsStepData) => handleStepData('goals', data)}
+            />
+          )}
+          {steps[currentStep].id === 'studyTimes' && (
+            <StudyTimeStep
+              data={formData.studyTimes as Partial<StudyTimeData>}
+              onDataChange={(data: StudyTimeData) => handleStepData('studyTimes', data)}
+            />
+          )}
+          {steps[currentStep].id === 'schedule' && (
+            <ScheduleStep
+              data={formData.schedule as Partial<ScheduleData>}
+              onDataChange={(data: ScheduleData) => handleStepData('schedule', data)}
+            />
+          )}
+          {steps[currentStep].id === 'eventPrep' && (
+            <EventPrepStep
+              data={formData.eventPrep as Partial<EventPrepData>}
+              onDataChange={(data: EventPrepData) => handleStepData('eventPrep', data)}
+            />
+          )}
+          {steps[currentStep].id === 'optimization' && (
+            <OptimizationStep
+              data={formData.optimization as Partial<OptimizationData>}
+              onDataChange={(data: OptimizationData) => handleStepData('optimization', data)}
+            />
+          )}
         </div>
       </div>
 
