@@ -26,14 +26,10 @@ function AppRoutes() {
             } 
           />
           
-          {/* Onboarding flow */}
+          {/* Onboarding flow - no auth required, create account during onboarding */}
           <Route 
             path="/onboarding" 
-            element={
-              <ProtectedRoute requireAuth={true} requireOnboarding={false}>
-                <Onboarding />
-              </ProtectedRoute>
-            } 
+            element={<Onboarding />} 
           />
           <Route path="/get-started" element={<Navigate to="/onboarding" replace />} />
 
