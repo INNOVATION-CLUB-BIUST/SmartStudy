@@ -1,44 +1,49 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Clock, Sun, Moon, Coffee, Brain } from 'lucide-react';
 
-interface StudyTimeStepProps {
-  data: any;
-  onDataChange: (data: any) => void;
-  onNext: () => void;
-  onPrevious: () => void;
-  isFirstStep: boolean;
-  isLastStep: boolean;
-  onComplete: () => void;
+export interface StudyTimeData {
+  preferredStudyTime: '' | 'morning' | 'afternoon' | 'evening' | 'night';
+  studyDuration: '' | '15' | '25' | '45' | '60' | '90' | '120' | '180';
+  breakDuration: '' | '5' | '10' | '15' | '30' | '45' | '60';
+  studyEnvironment: '' | 'library' | 'home' | 'cafe' | 'classroom' | 'study-room' | 'outdoor' | 'anywhere';
+  focusLevel: '' | '1' | '2' | '3' | '4' | '5';
+  studyMethods: string[];
+  distractions: string[];
 }
 
-const StudyTimeStep = ({ data, onDataChange, onNext }: StudyTimeStepProps) => {
-  const [formData, setFormData] = useState({
-    preferredStudyTime: data?.preferredStudyTime || '',
-    studyDuration: data?.studyDuration || '',
-    breakDuration: data?.breakDuration || '',
-    studyEnvironment: data?.studyEnvironment || '',
-    focusLevel: data?.focusLevel || '',
-    studyMethods: data?.studyMethods || [],
-    distractions: data?.distractions || [],
+interface StudyTimeStepProps {
+  data?: Partial<StudyTimeData>;
+  onDataChange: (data: StudyTimeData) => void;
+}
+
+const defaultStudyTimeData: StudyTimeData = {
+  preferredStudyTime: '',
+  studyDuration: '',
+  breakDuration: '',
+  studyEnvironment: '',
+  focusLevel: '',
+  studyMethods: [],
+  distractions: [],
+};
+
+const StudyTimeStep = ({ data, onDataChange }: StudyTimeStepProps) => {
+  const [formData, setFormData] = useState<StudyTimeData>({
+    ...defaultStudyTimeData,
+    ...data,
   });
 
-  const handleInputChange = (field: string, value: any) => {
-    const newData = { ...formData, [field]: value };
+  const handleInputChange = <K extends keyof StudyTimeData>(field: K, value: StudyTimeData[K]) => {
+    const newData: StudyTimeData = { ...formData, [field]: value } as StudyTimeData;
     setFormData(newData);
     onDataChange(newData);
   };
 
-  const handleArrayToggle = (field: string, value: string) => {
-    const currentArray = formData[field as keyof typeof formData] as string[];
+  const handleArrayToggle = (field: 'studyMethods' | 'distractions', value: string) => {
+    const currentArray = formData[field];
     const newArray = currentArray.includes(value)
       ? currentArray.filter((item) => item !== value)
       : [...currentArray, value];
     handleInputChange(field, newArray);
-  };
-
-  const handleNext = () => {
-    onDataChange(formData);
-    onNext();
   };
 
   const studyTimes = [
@@ -93,7 +98,7 @@ const StudyTimeStep = ({ data, onDataChange, onNext }: StudyTimeStepProps) => {
           {studyTimes.map((time) => (
             <button
               key={time.id}
-              onClick={() => handleInputChange('preferredStudyTime', time.id)}
+              onClick={() => handleInputChange('preferredStudyTime', time.id as StudyTimeData['preferredStudyTime'])}
               className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                 formData.preferredStudyTime === time.id
                   ? 'border-orange-500 bg-orange-500/20 text-white'
@@ -113,7 +118,7 @@ const StudyTimeStep = ({ data, onDataChange, onNext }: StudyTimeStepProps) => {
           <label className="text-sm font-medium text-orange-300">Preferred Study Session Duration</label>
           <select
             value={formData.studyDuration}
-            onChange={(e) => handleInputChange('studyDuration', e.target.value)}
+            onChange={(e) => handleInputChange('studyDuration', e.target.value as StudyTimeData['studyDuration'])}
             className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
           >
             <option value="">Select duration</option>
@@ -131,7 +136,7 @@ const StudyTimeStep = ({ data, onDataChange, onNext }: StudyTimeStepProps) => {
           <label className="text-sm font-medium text-orange-300">Break Duration</label>
           <select
             value={formData.breakDuration}
-            onChange={(e) => handleInputChange('breakDuration', e.target.value)}
+            onChange={(e) => handleInputChange('breakDuration', e.target.value as StudyTimeData['breakDuration'])}
             className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
           >
             <option value="">Select break duration</option>
@@ -150,7 +155,7 @@ const StudyTimeStep = ({ data, onDataChange, onNext }: StudyTimeStepProps) => {
         <label className="text-sm font-medium text-orange-300">Preferred Study Environment</label>
         <select
           value={formData.studyEnvironment}
-          onChange={(e) => handleInputChange('studyEnvironment', e.target.value)}
+          onChange={(e) => handleInputChange('studyEnvironment', e.target.value as StudyTimeData['studyEnvironment'])}
           className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
         >
           <option value="">Select environment</option>
@@ -171,7 +176,7 @@ const StudyTimeStep = ({ data, onDataChange, onNext }: StudyTimeStepProps) => {
           {[1, 2, 3, 4, 5].map((level) => (
             <button
               key={level}
-              onClick={() => handleInputChange('focusLevel', level.toString())}
+              onClick={() => handleInputChange('focusLevel', level.toString() as StudyTimeData['focusLevel'])}
               className={`w-12 h-12 rounded-full border-2 transition-all duration-300 ${
                 formData.focusLevel === level.toString()
                   ? 'border-orange-500 bg-orange-500 text-black'
@@ -226,15 +231,6 @@ const StudyTimeStep = ({ data, onDataChange, onNext }: StudyTimeStepProps) => {
             </button>
           ))}
         </div>
-      </div>
-
-      <div className="flex justify-end">
-        <button
-          onClick={handleNext}
-          className="px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-black font-semibold rounded-lg hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 shadow-lg hover:shadow-xl"
-        >
-          Continue
-        </button>
       </div>
     </div>
   );
