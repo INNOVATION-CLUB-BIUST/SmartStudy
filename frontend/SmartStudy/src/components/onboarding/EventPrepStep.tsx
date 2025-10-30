@@ -1,45 +1,70 @@
-import React, { useState } from 'react';
-import { Calendar, BookOpen, Clock, Target, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, BookOpen, Clock, Target } from 'lucide-react';
 
-interface EventPrepStepProps {
-  data: any;
-  onDataChange: (data: any) => void;
-  onNext: () => void;
-  onPrevious: () => void;
-  isFirstStep: boolean;
-  isLastStep: boolean;
-  onComplete: () => void;
+// Types for this step's data shape
+export interface ExamItem {
+  name: string;
+  date: string; // ISO date string (YYYY-MM-DD)
+  importance: '' | 'low' | 'medium' | 'high' | 'critical';
 }
 
-const EventPrepStep = ({ data, onDataChange, onNext }: EventPrepStepProps) => {
-  const [formData, setFormData] = useState({
-    upcomingExams: data?.upcomingExams || [],
-    assignmentDeadlines: data?.assignmentDeadlines || [],
-    projectDeadlines: data?.projectDeadlines || [],
-    prepTimePreference: data?.prepTimePreference || '',
-    studyIntensity: data?.studyIntensity || '',
-    reminderPreferences: data?.reminderPreferences || [],
-    stressLevel: data?.stressLevel || '',
+export interface AssignmentItem {
+  name: string;
+  deadline: string; // ISO date string
+  priority: '' | 'low' | 'medium' | 'high';
+}
+
+export interface ProjectItem {
+  name: string;
+  deadline: string; // ISO date string
+  priority: '' | 'low' | 'medium' | 'high';
+}
+
+export interface EventPrepData {
+  upcomingExams: ExamItem[];
+  assignmentDeadlines: AssignmentItem[];
+  projectDeadlines: ProjectItem[];
+  prepTimePreference: '' | '1-week' | '2-weeks' | '1-month' | 'flexible';
+  studyIntensity: '' | 'light' | 'moderate' | 'intense' | 'cramming';
+  reminderPreferences: string[];
+  stressLevel: '' | '1' | '2' | '3' | '4' | '5';
+}
+
+interface EventPrepStepProps {
+  data?: Partial<EventPrepData>;
+  onDataChange: (data: EventPrepData) => void;
+}
+
+const defaultEventPrepData: EventPrepData = {
+  upcomingExams: [],
+  assignmentDeadlines: [],
+  projectDeadlines: [],
+  prepTimePreference: '',
+  studyIntensity: '',
+  reminderPreferences: [],
+  stressLevel: '',
+};
+
+const EventPrepStep = ({ data, onDataChange }: EventPrepStepProps) => {
+  const [formData, setFormData] = useState<EventPrepData>({
+    ...defaultEventPrepData,
+    ...data,
   });
 
-  const handleInputChange = (field: string, value: any) => {
-    const newData = { ...formData, [field]: value };
+  const handleInputChange = <K extends keyof EventPrepData>(field: K, value: EventPrepData[K]) => {
+    const newData: EventPrepData = { ...formData, [field]: value } as EventPrepData;
     setFormData(newData);
     onDataChange(newData);
   };
 
-  const handleArrayToggle = (field: string, value: string) => {
-    const currentArray = formData[field as keyof typeof formData] as string[];
+  const handleArrayToggle = (field: 'reminderPreferences', value: string) => {
+    const currentArray = formData[field];
     const newArray = currentArray.includes(value)
       ? currentArray.filter((item) => item !== value)
       : [...currentArray, value];
     handleInputChange(field, newArray);
   };
 
-  const handleNext = () => {
-    onDataChange(formData);
-    onNext();
-  };
 
   const reminderOptions = [
     'Email notifications',
@@ -66,7 +91,7 @@ const EventPrepStep = ({ data, onDataChange, onNext }: EventPrepStepProps) => {
       <div className="space-y-4">
         <label className="text-lg font-medium text-orange-300">Upcoming Exams</label>
         <div className="space-y-3">
-          {formData.upcomingExams.map((exam: any, index: number) => (
+          {formData.upcomingExams.map((exam: ExamItem, index: number) => (
             <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-slate-700/50 rounded-lg border border-orange-500/20">
               <input
                 type="text"
@@ -93,7 +118,7 @@ const EventPrepStep = ({ data, onDataChange, onNext }: EventPrepStepProps) => {
                 value={exam.importance || ''}
                 onChange={(e) => {
                   const newExams = [...formData.upcomingExams];
-                  newExams[index] = { ...newExams[index], importance: e.target.value };
+                  newExams[index] = { ...newExams[index], importance: e.target.value as ExamItem['importance'] };
                   handleInputChange('upcomingExams', newExams);
                 }}
                 className="px-3 py-2 bg-slate-600 border border-orange-500/30 rounded text-white focus:border-orange-500"
@@ -108,7 +133,7 @@ const EventPrepStep = ({ data, onDataChange, onNext }: EventPrepStepProps) => {
           ))}
           <button
             onClick={() => {
-              const newExams = [...formData.upcomingExams, { name: '', date: '', importance: '' }];
+              const newExams: ExamItem[] = [...formData.upcomingExams, { name: '', date: '', importance: '' }];
               handleInputChange('upcomingExams', newExams);
             }}
             className="w-full py-2 border-2 border-dashed border-orange-500/50 rounded-lg text-orange-300 hover:border-orange-500 hover:bg-orange-500/10 transition-all duration-300"
@@ -122,7 +147,7 @@ const EventPrepStep = ({ data, onDataChange, onNext }: EventPrepStepProps) => {
       <div className="space-y-4">
         <label className="text-lg font-medium text-orange-300">Assignment Deadlines</label>
         <div className="space-y-3">
-          {formData.assignmentDeadlines.map((assignment: any, index: number) => (
+          {formData.assignmentDeadlines.map((assignment: AssignmentItem, index: number) => (
             <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-slate-700/50 rounded-lg border border-orange-500/20">
               <input
                 type="text"
@@ -149,7 +174,7 @@ const EventPrepStep = ({ data, onDataChange, onNext }: EventPrepStepProps) => {
                 value={assignment.priority || ''}
                 onChange={(e) => {
                   const newAssignments = [...formData.assignmentDeadlines];
-                  newAssignments[index] = { ...newAssignments[index], priority: e.target.value };
+                  newAssignments[index] = { ...newAssignments[index], priority: e.target.value as AssignmentItem['priority'] };
                   handleInputChange('assignmentDeadlines', newAssignments);
                 }}
                 className="px-3 py-2 bg-slate-600 border border-orange-500/30 rounded text-white focus:border-orange-500"
@@ -163,7 +188,7 @@ const EventPrepStep = ({ data, onDataChange, onNext }: EventPrepStepProps) => {
           ))}
           <button
             onClick={() => {
-              const newAssignments = [...formData.assignmentDeadlines, { name: '', deadline: '', priority: '' }];
+              const newAssignments: AssignmentItem[] = [...formData.assignmentDeadlines, { name: '', deadline: '', priority: '' }];
               handleInputChange('assignmentDeadlines', newAssignments);
             }}
             className="w-full py-2 border-2 border-dashed border-orange-500/50 rounded-lg text-orange-300 hover:border-orange-500 hover:bg-orange-500/10 transition-all duration-300"
@@ -185,7 +210,7 @@ const EventPrepStep = ({ data, onDataChange, onNext }: EventPrepStepProps) => {
           ].map((option) => (
             <button
               key={option.id}
-              onClick={() => handleInputChange('prepTimePreference', option.id)}
+              onClick={() => handleInputChange('prepTimePreference', option.id as EventPrepData['prepTimePreference'])}
               className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                 formData.prepTimePreference === option.id
                   ? 'border-orange-500 bg-orange-500/20 text-white'
@@ -211,7 +236,7 @@ const EventPrepStep = ({ data, onDataChange, onNext }: EventPrepStepProps) => {
           ].map((option) => (
             <button
               key={option.id}
-              onClick={() => handleInputChange('studyIntensity', option.id)}
+              onClick={() => handleInputChange('studyIntensity', option.id as EventPrepData['studyIntensity'])}
               className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                 formData.studyIntensity === option.id
                   ? 'border-orange-500 bg-orange-500/20 text-white'
@@ -252,7 +277,7 @@ const EventPrepStep = ({ data, onDataChange, onNext }: EventPrepStepProps) => {
           {[1, 2, 3, 4, 5].map((level) => (
             <button
               key={level}
-              onClick={() => handleInputChange('stressLevel', level.toString())}
+              onClick={() => handleInputChange('stressLevel', level.toString() as EventPrepData['stressLevel'])}
               className={`w-12 h-12 rounded-full border-2 transition-all duration-300 ${
                 formData.stressLevel === level.toString()
                   ? 'border-orange-500 bg-orange-500 text-black'
@@ -269,14 +294,6 @@ const EventPrepStep = ({ data, onDataChange, onNext }: EventPrepStepProps) => {
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <button
-          onClick={handleNext}
-          className="px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-black font-semibold rounded-lg hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 shadow-lg hover:shadow-xl"
-        >
-          Continue
-        </button>
-      </div>
     </div>
   );
 };
