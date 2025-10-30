@@ -1,43 +1,52 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Settings, Brain, Target, Zap, CheckCircle } from 'lucide-react';
 
-interface OptimizationStepProps {
-  data: any;
-  onDataChange: (data: any) => void;
-  onNext: () => void;
-  onPrevious: () => void;
-  isFirstStep: boolean;
-  isLastStep: boolean;
-  onComplete: () => void;
+export interface NotificationSettings {
+  studyReminders?: string;
+  deadlineAlerts?: string;
 }
 
-const OptimizationStep = ({ data, onDataChange, onComplete }: OptimizationStepProps) => {
-  const [formData, setFormData] = useState({
-    aiPreferences: data?.aiPreferences || [],
-    learningStyle: data?.learningStyle || '',
-    productivityTools: data?.productivityTools || [],
-    notificationSettings: data?.notificationSettings || {},
-    privacySettings: data?.privacySettings || {},
-    optimizationGoals: data?.optimizationGoals || [],
+export interface OptimizationData {
+  aiPreferences: string[];
+  learningStyle: '' | 'visual' | 'auditory' | 'kinesthetic' | 'reading' | 'mixed';
+  productivityTools: string[];
+  notificationSettings: NotificationSettings;
+  privacySettings: Record<string, boolean>;
+  optimizationGoals: string[];
+}
+
+interface OptimizationStepProps {
+  data?: Partial<OptimizationData>;
+  onDataChange: (data: OptimizationData) => void;
+}
+
+const defaultOptimizationData: OptimizationData = {
+  aiPreferences: [],
+  learningStyle: '',
+  productivityTools: [],
+  notificationSettings: {},
+  privacySettings: {},
+  optimizationGoals: [],
+};
+
+const OptimizationStep = ({ data, onDataChange }: OptimizationStepProps) => {
+  const [formData, setFormData] = useState<OptimizationData>({
+    ...defaultOptimizationData,
+    ...data,
   });
 
-  const handleInputChange = (field: string, value: any) => {
-    const newData = { ...formData, [field]: value };
+  const handleInputChange = <K extends keyof OptimizationData>(field: K, value: OptimizationData[K]) => {
+    const newData: OptimizationData = { ...formData, [field]: value } as OptimizationData;
     setFormData(newData);
     onDataChange(newData);
   };
 
-  const handleArrayToggle = (field: string, value: string) => {
-    const currentArray = formData[field as keyof typeof formData] as string[];
+  const handleArrayToggle = (field: 'aiPreferences' | 'productivityTools' | 'optimizationGoals', value: string) => {
+    const currentArray = formData[field];
     const newArray = currentArray.includes(value)
       ? currentArray.filter((item) => item !== value)
       : [...currentArray, value];
     handleInputChange(field, newArray);
-  };
-
-  const handleComplete = () => {
-    onDataChange(formData);
-    onComplete();
   };
 
   const aiFeatures = [
@@ -117,7 +126,7 @@ const OptimizationStep = ({ data, onDataChange, onComplete }: OptimizationStepPr
           {learningStyles.map((style) => (
             <button
               key={style.id}
-              onClick={() => handleInputChange('learningStyle', style.id)}
+              onClick={() => handleInputChange('learningStyle', style.id as OptimizationData['learningStyle'])}
               className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                 formData.learningStyle === style.id
                   ? 'border-orange-500 bg-orange-500/20 text-white'
@@ -181,7 +190,7 @@ const OptimizationStep = ({ data, onDataChange, onComplete }: OptimizationStepPr
             <select
               value={formData.notificationSettings.studyReminders || ''}
               onChange={(e) => {
-                const newSettings = { ...formData.notificationSettings, studyReminders: e.target.value };
+                const newSettings: NotificationSettings = { ...formData.notificationSettings, studyReminders: e.target.value };
                 handleInputChange('notificationSettings', newSettings);
               }}
               className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500"
@@ -198,7 +207,7 @@ const OptimizationStep = ({ data, onDataChange, onComplete }: OptimizationStepPr
             <select
               value={formData.notificationSettings.deadlineAlerts || ''}
               onChange={(e) => {
-                const newSettings = { ...formData.notificationSettings, deadlineAlerts: e.target.value };
+                const newSettings: NotificationSettings = { ...formData.notificationSettings, deadlineAlerts: e.target.value };
                 handleInputChange('notificationSettings', newSettings);
               }}
               className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500"
@@ -241,14 +250,6 @@ const OptimizationStep = ({ data, onDataChange, onComplete }: OptimizationStepPr
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <button
-          onClick={handleComplete}
-          className="px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-black font-semibold rounded-lg hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 shadow-lg hover:shadow-xl"
-        >
-          Complete Setup
-        </button>
-      </div>
     </div>
   );
 };
