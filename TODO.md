@@ -87,3 +87,30 @@ How to use this file
 ---
 
 If you'd like, I can now implement item 1 (the sign-out button) and run typechecks + start the dev server to validate. Reply with "Start item 1" or ask for a different task.
+
+-------------------------
+
+## Weekly sprint plan (starter — 4 weeks)
+
+Goal: deliver a stable onboarding flow, backend integration, basic tests, and CI. Tasks are small and student-friendly. Each week pick 1–3 items (start with the top of the list). I'll implement, run typechecks, and open PRs for review.
+
+Week 1 (this week)
+- ID 11: Implement 'Use different account' button in `src/components/layout/Header.tsx` — Frontend A — 1–2 hrs
+- ID 12: Add router-level guard for `/onboarding` (light) — Frontend B — 2–4 hrs
+- ID 13: Backend verify onboarding API — Backend Devs — 3–6 hrs
+
+Week 2
+- ID 14: Add unit tests for `OnboardingFlow` (happy path + validation) — Frontend C — 3–5 hrs
+- ID 15: Add minimal CI job (typecheck + lint) — Backend Dev 2 — 2–4 hrs
+- ID 19: Implement `onboardingDraft` clear-on-complete + 'Reset draft' UI — Frontend A — 2–3 hrs
+
+Week 3
+- ID 16: Add E2E smoke test (Cypress/Playwright) — Frontend B — 6–10 hrs
+- ID 17: Sweep and cleanup ESLint warnings in onboarding area — Frontend C — 2–3 hrs
+- ID 18: Update README and `TODO.md` developer ramp docs — Frontend A — 1–2 hrs
+
+Week 4 (wrap-up)
+- ID 20: Add lightweight telemetry for onboarding drop-offs — Frontend B — 2–4 hrs
+- Polish remaining small bugs, address PR feedback, merge outstanding changes.
+
+Ongoing: I'll post a short weekly update in this file (what I changed, PR links, and next picks). Tell me which week/task you want me to start with now — I'll mark it in the tracked todo list and begin.
