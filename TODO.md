@@ -1,79 +1,89 @@
-# SmartStudy To-Do List
+# SmartStudy — Team To‑Do (shareable)
 
-## 1. User Onboarding & Authentication
+This file is a concise, shareable plan for the onboarding cleanup and next steps. Tasks are bite-sized and prioritized so the student team can pick them up quickly. Completed items are listed first, then this week's deliverables, in-progress items, and a short backlog.
 
-### Frontend
-- [ ] Implement UI for user registration and login pages.
-- [ ] Integrate with **Firebase Authentication** for email/password and Google sign-in.
-- [ ] Develop the multi-step onboarding flow to collect user profile data, study subjects, and initial goals.
-- [ ] Send the collected onboarding data to the backend.
-- [ ] Implement protected routes that are only accessible to logged-in users.
+Last update: 2025-11-08
 
-### Backend (Cloud Functions)
-- [ ] Create a secure `/onboarding` endpoint.
-- [ ] When a new user signs up, trigger a function to create a corresponding user document in **Firestore**.
-- [ ] Store the onboarding data in the user's Firestore document.
+Team (roles)
+- Frontend A — you (lead frontend this week)
+- Frontend B — frontend teammate
+- Frontend C — frontend teammate
+- Backend Dev 1 — backend lead
+- Backend Dev 2 — backend support / CI
 
-## 2. Dashboard
+How to use this file
+- Assign tasks by name (or swap placeholders) and move them to "In progress" when you start.
+- Keep items small — estimated time is included.
+- If you'd like, I can implement some of these items and update the repo directly.
 
-### Frontend
-- [ ] Fetch and display a summary of the user's data: upcoming tasks, today's schedule, and progress towards goals.
-- [ ] Create UI components for each of these summary sections.
+-------------------------
 
-### Backend (Cloud Functions)
-- [ ] Create a `/dashboard` endpoint that gathers and returns all the necessary summary data from various Firestore collections (tasks, schedule, goals).
+## Completed (do not reassign)
 
-## 3. Schedule Management
+- Centralize onboarding navigation (`src/components/onboarding/OnboardingFlow.tsx`) — Completed
+- Removed per-step "Continue" buttons from onboarding steps (`src/components/onboarding/*.tsx`) — Completed
+- Simplified `ProfileStep` and re-added student fields (`src/components/onboarding/ProfileStep.tsx`) — Completed
+- Allow onboarding before account creation; create account on final submit (`OnboardingFlow`) — Completed
+- Component-level guard for onboarding (pre-auth-only policy) + live auth subscription (`OnboardingFlow`) — Completed
+- TypeScript typing cleanup for onboarding step data (`src/components/onboarding/*.tsx`) — Completed
+- Fixed email/password editing behavior in `ProfileStep` — Completed
+- Corrected Home/Get Started routing to point to `/onboarding` — Completed
+- Resolved TypeScript and lint errors for modified files — Completed
 
-### Frontend
-- [ ] Build the calendar interface for viewing the study schedule.
-- [ ] Create forms (modals) for adding and editing study sessions, classes, and other events.
--_ [ ] Connect the UI to the backend to fetch and update schedule data.
+-------------------------
 
-### Backend (Cloud Functions)
-- [ ] Implement CRUD (Create, Read, Update, Delete) endpoints for schedule events (e.g., `/schedule`).
-- [ ] All schedule data will be stored in a `schedule` collection in Firestore, linked to the user.
+## This week's priorities (small, high-impact — pick 1–2)
 
-## 4. Study Time Tracker
+1) Use different account (sign-out & restart onboarding)
+- What: Add a small button to let a signed-in user sign out and restart onboarding.
+- Where: `src/components/layout/Header.tsx` (preferred) or `src/components/onboarding/ProfileStep.tsx`.
+- Acceptance: Calls `signOut()` then navigates to `/onboarding` (fresh state). Clears session-block so onboarding is available.
+- Est. effort: 1–2 hours
+- Assigned: Frontend A (you)
+- Due: This week
 
-### Frontend
-- [ ] Develop the UI for the study timer, including start, pause, and stop controls.
-- [ ] Allow users to associate each study session with a subject.
-- [ ] Send the completed study session data to the backend.
+2) Router-level guard for `/onboarding` (light)
+- What: Mirror the component guard in `App.tsx` or `ProtectedRoute.tsx` to avoid shallow route bypass.
+- Where: `src/App.tsx`, `src/components/ProtectedRoute.tsx`.
+- Acceptance: Signed-in users redirected to `/dashboard`; preserve completion override so final submit works.
+- Est. effort: 2–4 hours
+- Assigned: Frontend B
+- Due: This week
 
-### Backend (Cloud Functions)
-- [ ] Create a `/study-sessions` endpoint to save the details of each study session to a `study_sessions` collection in Firestore.
+3) Backend: verify onboarding API integration (high priority)
+- What: Confirm backend endpoint that receives onboarding payload matches frontend contract; verify with emulator or quick integration test.
+- Where: Backend functions (repo `backend/`), frontend `src/services` client.
+- Acceptance: Final submit POST succeeds in dev; backend stores payload and returns expected response. Frontend handles errors gracefully.
+- Est. effort: 3–6 hours
+- Assigned: Backend Dev 1 (lead) + Backend Dev 2 (support)
+- Status: In progress — coordinate with frontend to get sample payload
 
-## 5. Task and Goal Management
+4) Unit test: onboarding core (small smoke, stretch)
+- What: Add 2 unit tests: happy path + validation failure for `OnboardingFlow`.
+- Where: `frontend/src/__tests__/onboarding/OnboardingFlow.test.tsx`.
+- Acceptance: Tests run locally and in CI quickly (<10s).
+- Est. effort: 3–5 hours
+- Assigned: Frontend C
+- Due: This week (stretch)
 
-### Frontend
-- [ ] Create the UI for listing tasks and goals.
-- [ ] Implement functionality to add, edit, delete, and mark tasks as complete.
-- [ ] Develop the interface for setting and tracking long-term academic goals.
+-------------------------
 
-### Backend (Cloud Functions)
-- [ ] Implement CRUD endpoints for both tasks (`/tasks`) and goals (`/goals`).
-- [ ] Store this data in separate `tasks` and `goals` collections in Firestore.
+## Short backlog / next week
 
-## 6. Analytics & Progress Tracking
+- CI/build checks (minimal): add GitHub Action to run TypeScript and lint on PRs. Assigned: Backend Dev 2. Est. 2–4 hours.
+- E2E smoke (optional): single Cypress/Playwright happy path covering signup. Assigned: Frontend B. Est. 6–10 hours.
+- Cleanup ESLint warnings (onboarding area): small sweep and fixes. Assigned: Frontend C. Est. 2–3 hours.
+- Update README & `TODO.md` for dev ramp: document onboarding behavior, emulators, and how to run. Assigned: Frontend A. Est. 1–2 hours.
+- `onboardingDraft` lifecycle (clear on completion + reset UX): Assigned: Frontend A. Est. 2–3 hours.
+- Monitoring / telemetry (light): instrument step enters, errors, completion. Assigned: Frontend B. Est. 2–4 hours.
 
-### Frontend
-- [ ] Use a charting library (like Chart.js or Recharts) to create visualizations for:
-    - [ ] Study time distribution by subject.
-    - [ ] Task completion rates.
-    - [ ] Progress towards goals over time.
+-------------------------
 
-### Backend (Cloud Functions)
-- [ ] Create an `/analytics` endpoint that aggregates data from Firestore to generate the insights needed for the charts.
+## Notes for the team
+- Keep PRs small and focused (1 feature/bug per PR). Reviewers: at least one frontend + one backend for API changes.
+- Use the Firebase emulator for backend testing (check `backend/README` or ask the backend lead if missing).
+- If you need me to implement any of the "This week's" items, tell me which one(s) and I'll start and mark them in the todo list as in-progress.
 
-## 7. AI Assistant
+---
 
-### Frontend
-- [ ] Build out the chat interface.
-- [ ] Send user messages to the backend AI endpoint.
-- [ ] Display the responses from the AI.
-
-### Backend (Cloud Functions)
-- [ ] Create an `/ai-assistant` endpoint.
-- [ ] This function will take the user's query and securely call the **Gemini API**.
-- [ ] It will then process the response and send it back to the frontend.
+If you'd like, I can now implement item 1 (the sign-out button) and run typechecks + start the dev server to validate. Reply with "Start item 1" or ask for a different task.
