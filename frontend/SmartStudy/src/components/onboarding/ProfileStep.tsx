@@ -160,7 +160,8 @@ const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
             <option value="Graduate">Graduate</option>
           </select>
         </div>
-      </div>    </div>
+        </div>
+      </div>
   );
 };
 
