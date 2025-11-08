@@ -1,28 +1,37 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Target, BookOpen, Trophy, Clock, TrendingUp } from 'lucide-react';
 
-interface GoalsStepProps {
-  data: any;
-  onDataChange: (data: any) => void;
-  onNext: () => void;
-  onPrevious: () => void;
-  isFirstStep: boolean;
-  isLastStep: boolean;
-  onComplete: () => void;
+export interface GoalsStepData {
+  primaryGoal: '' | 'improve-grades' | 'maintain-gpa' | 'time-management' | 'study-skills' | 'exam-prep';
+  gpaTarget: string; // keep as string for simplicity in controlled inputs
+  studyHoursPerWeek: string; // keep as string
+  focusAreas: string[];
+  graduationDate: string; // ISO date string
+  careerGoals: string;
 }
 
-const GoalsStep = ({ data, onDataChange, onNext }: GoalsStepProps) => {
-  const [formData, setFormData] = useState({
-    primaryGoal: data?.primaryGoal || '',
-    gpaTarget: data?.gpaTarget || '',
-    studyHoursPerWeek: data?.studyHoursPerWeek || '',
-    focusAreas: data?.focusAreas || [],
-    graduationDate: data?.graduationDate || '',
-    careerGoals: data?.careerGoals || '',
+interface GoalsStepProps {
+  data?: Partial<GoalsStepData>;
+  onDataChange: (data: GoalsStepData) => void;
+}
+
+const defaultGoalsStepData: GoalsStepData = {
+  primaryGoal: '',
+  gpaTarget: '',
+  studyHoursPerWeek: '',
+  focusAreas: [],
+  graduationDate: '',
+  careerGoals: '',
+};
+
+const GoalsStep = ({ data, onDataChange }: GoalsStepProps) => {
+  const [formData, setFormData] = useState<GoalsStepData>({
+    ...defaultGoalsStepData,
+    ...data,
   });
 
-  const handleInputChange = (field: string, value: any) => {
-    const newData = { ...formData, [field]: value };
+  const handleInputChange = <K extends keyof GoalsStepData>(field: K, value: GoalsStepData[K]) => {
+    const newData: GoalsStepData = { ...formData, [field]: value } as GoalsStepData;
     setFormData(newData);
     onDataChange(newData);
   };
@@ -35,11 +44,6 @@ const GoalsStep = ({ data, onDataChange, onNext }: GoalsStepProps) => {
     handleInputChange('focusAreas', newAreas);
   };
 
-  const handleNext = () => {
-    onDataChange(formData);
-    onNext();
-  };
-
   const primaryGoals = [
     { id: 'improve-grades', label: 'Improve my grades', icon: TrendingUp },
     { id: 'maintain-gpa', label: 'Maintain my current GPA', icon: Trophy },
@@ -49,16 +53,22 @@ const GoalsStep = ({ data, onDataChange, onNext }: GoalsStepProps) => {
   ];
 
   const focusAreas = [
-    'Mathematics',
-    'Sciences',
-    'Programming',
-    'Writing & Communication',
-    'Research',
-    'Problem Solving',
-    'Critical Thinking',
-    'Time Management',
-    'Note Taking',
-    'Exam Strategies'
+  // Engineering Courses
+  'Computer Science',
+  'Electrical Engineering',
+  'Mechanical Engineering',
+  'Chemical Engineering',
+  'Civil Engineering',
+  // Science Courses
+  'Mathematics',
+  'Physics',
+  'Chemistry',
+  'Biology',
+  'Statistics',
+  // General Skills
+  'Programming',
+  'Data Analysis',
+  'Research Methods'
   ];
 
   return (
@@ -80,7 +90,7 @@ const GoalsStep = ({ data, onDataChange, onNext }: GoalsStepProps) => {
           {primaryGoals.map((goal) => (
             <button
               key={goal.id}
-              onClick={() => handleInputChange('primaryGoal', goal.id)}
+              onClick={() => handleInputChange('primaryGoal', goal.id as GoalsStepData['primaryGoal'])}
               className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                 formData.primaryGoal === goal.id
                   ? 'border-orange-500 bg-orange-500/20 text-white'
@@ -165,15 +175,6 @@ const GoalsStep = ({ data, onDataChange, onNext }: GoalsStepProps) => {
           placeholder="Tell us about your career aspirations..."
           rows={3}
         />
-      </div>
-
-      <div className="flex justify-end">
-        <button
-          onClick={handleNext}
-          className="px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-black font-semibold rounded-lg hover:from-orange-400 hover:to-yellow-400 transition-all duration-300 shadow-lg hover:shadow-xl"
-        >
-          Continue
-        </button>
       </div>
     </div>
   );

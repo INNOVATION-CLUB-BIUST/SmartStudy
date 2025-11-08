@@ -1,24 +1,73 @@
 # SmartStudy To-Do List
 
+## Current Progress
+**Last Updated:** October 29, 2025
+
+### Completed Backend Functions:
+- ✅ Basic Express server setup with CORS and JSON parsing
+- ✅ Firebase Admin SDK initialization
+- ✅ Firestore database connection
+- ✅ `/hello` test endpoint
+  - User profile creation in Firestore
+  - Initial goals creation
+  - Data validation
+  - Error handling
+  - Firebase ID token verification middleware
+  - Idempotent user document merging
+  - Timestamp management (createdAt/updatedAt)
+
+### Completed Frontend Features:
+  - Email/password login
+  - User account creation during onboarding
+  - ID token attachment to API requests
+- ✅ LocalStorage draft autosave for onboarding
+- ✅ Protected routes with onboarding status checks
+- ✅ Route guards to prevent re-onboarding
+- ✅ Smart field prefilling based on auth state
+
+### Configuration Required:
+**Environment Variables** (`.env.local` in frontend):
+```
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FUNCTIONS_BASE_URL=http://localhost:5001/smartstudy-26356/us-central1/api  # Local emulator
+# VITE_FUNCTIONS_BASE_URL=https://us-central1-smartstudy-26356.cloudfunctions.net/api  # Production
+```
+
+### Firebase Emulator Setup:
+**Start emulators locally**:
+```bash
+firebase emulators:start --only functions,firestore
+```
+
+**Access points**:
+- Functions: http://localhost:5001
+- Firestore: http://localhost:8080
+- Emulator UI: http://localhost:4000
+
+### Next Steps:
+- ⚠️ Test full auth flow: Login → Dashboard (onboarded users)
+- ⚠️ Test full onboarding flow: Get Started → Onboarding → Dashboard
+- ⚠️ Deploy Firebase Functions and Firestore rules
+
+
 ## 1. User Onboarding & Authentication
 
 ### Frontend
-- [ ] Implement UI for user registration and login pages.
-- [ ] Integrate with **Firebase Authentication** for email/password and Google sign-in.
-- [ ] Develop the multi-step onboarding flow to collect user profile data, study subjects, and initial goals.
-- [ ] Send the collected onboarding data to the backend.
-- [ ] Implement protected routes that are only accessible to logged-in users.
+- [x] Implement protected routes that are only accessible to logged-in users.
+- [x] Add route guards to skip onboarding for users who already completed it.
 
 ### Backend (Cloud Functions)
-- [ ] Create a secure `/onboarding` endpoint.
-- [ ] When a new user signs up, trigger a function to create a corresponding user document in **Firestore**.
-- [ ] Store the onboarding data in the user's Firestore document.
+- [x] Add Firebase ID token verification middleware for security.
 
 ## 2. Dashboard
 
 ### Frontend
-- [ ] Fetch and display a summary of the user's data: upcoming tasks, today's schedule, and progress towards goals.
-- [ ] Create UI components for each of these summary sections.
+- [x] Implement protected routes that check auth and onboarding status.
 
 ### Backend (Cloud Functions)
 - [ ] Create a `/dashboard` endpoint that gathers and returns all the necessary summary data from various Firestore collections (tasks, schedule, goals).

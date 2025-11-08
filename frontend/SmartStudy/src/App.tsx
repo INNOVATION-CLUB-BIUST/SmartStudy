@@ -3,6 +3,8 @@ import { AppProvider } from './context/AppContext';
 import HomePage from './pages/HomePage';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
+import LoginPage from './pages/LoginPage'; // Import LoginPage
+import { ProtectedRoute } from './components/ProtectedRoute';
 //import { useUser } from './hooks';
 //import StudyMode from './pages/StudyMode';
 //import Analytics from './pages/Analytics';
@@ -24,11 +26,25 @@ function AppRoutes() {
             } 
           />
           
-          {/* Onboarding flow */}
-          <Route path="/onboarding" element={<Onboarding />} />
+          {/* Onboarding flow - no auth required, create account during onboarding */}
+          <Route 
+            path="/onboarding" 
+            element={<Onboarding />} 
+          />
+          <Route path="/get-started" element={<Navigate to="/onboarding" replace />} />
+
+          {/* Auth routes */}
+          <Route path="/login" element={<LoginPage />} />
           
           {/* Main application routes */}
-          <Route path="/dashboard/*" element={<Dashboard />} />
+          <Route 
+            path="/dashboard/*" 
+            element={
+              <ProtectedRoute requireAuth={true} requireOnboarding={true}>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
           
           {/* Additional routes 
           <Route path="/study-mode" element={<StudyMode />} />
