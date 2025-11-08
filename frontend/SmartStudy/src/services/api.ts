@@ -18,11 +18,20 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers,
   });
 
-  const data = await res.json().catch(() => ({}));
+  let data: any;
+  try {
+    data = await res.json();
+  } catch (err) {
+    throw Object.assign(
+      new Error(data.error || `Request failed with status ${res.status}`),
+      { status: res.status, data }
+    );
+    data = null;
+  }
   
   if (!res.ok) {
     console.error('API Error:', res.status, data);
-    throw Object.assign(new Error(data.error || 'Request failed'), { status: res.status, data });
+    throw Object.assign(new Error(data?.error || 'Request failed'), { status: res.status, data });
   }
   
   return data as T;
