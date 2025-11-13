@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCw, BookOpen, Target, Plus, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Play, Pause, RotateCw, BookOpen, Plus, ChevronDown } from 'lucide-react';
 
 const StudyTime = () => {
   const [timer, setTimer] = useState(25 * 60);
@@ -8,7 +8,7 @@ const StudyTime = () => {
   const [sessionType, setSessionType] = useState('pomodoro'); // pomodoro, shortBreak, longBreak
   const [sessionCount, setSessionCount] = useState(0);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isActive) {
