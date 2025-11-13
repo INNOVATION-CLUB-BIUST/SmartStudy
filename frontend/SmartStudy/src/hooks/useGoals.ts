@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { getCurrentUser } from '../services/auth';
 import type { Goal, Milestone, GoalStats } from '../types';
@@ -117,7 +117,7 @@ const useGoals = () => {
 
   const deleteGoal = async (id: string) => {
     try {
-      // simple local removal; actual deletion in Firestore can be added
+      await deleteDoc(doc(db, 'goals', id));
       setGoals(prev => prev.filter(g => g.id !== id));
     } catch (err) {
       console.error('Failed to delete goal', err);
