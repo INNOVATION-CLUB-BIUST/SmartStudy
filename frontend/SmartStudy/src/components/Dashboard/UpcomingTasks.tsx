@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { 
   CheckSquare, 
   Clock, 
@@ -9,9 +9,6 @@ import {
   Calendar,
   BookOpen,
   Target,
-  Filter,
-  Search,
-  SortAsc,
   Bell
 } from 'lucide-react';
 

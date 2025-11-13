@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Send, Brain, Zap, Book, FileText, Plus } from 'lucide-react';
 
 const AIAssistant = () => {

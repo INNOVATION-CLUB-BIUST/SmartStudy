@@ -1,13 +1,11 @@
-import React from 'react';
 import { CheckCircle } from 'lucide-react';
 
 interface ProgressIndicatorProps {
   currentStep: number;
-  totalSteps: number;
   steps: Array<{ id: string; title: string }>;
 }
 
-const ProgressIndicator = ({ currentStep, totalSteps, steps }: ProgressIndicatorProps) => {
+const ProgressIndicator = ({ currentStep, steps }: ProgressIndicatorProps) => {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between">

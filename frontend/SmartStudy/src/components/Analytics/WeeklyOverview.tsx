@@ -1,4 +1,3 @@
-import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import useAnalytics from '../../hooks/useAnalytics';
 
@@ -19,11 +18,7 @@ const WeeklyOverview: React.FC = () => {
     return null;
   };
 
-  const getTrendColor = (current: number, previous: number): string => {
-    if (current > previous) return 'text-green-400';
-    if (current < previous) return 'text-red-400';
-    return 'text-slate-400';
-  };
+  // removed unused getTrendColor helper
 
   return (
     <div className="space-y-4">

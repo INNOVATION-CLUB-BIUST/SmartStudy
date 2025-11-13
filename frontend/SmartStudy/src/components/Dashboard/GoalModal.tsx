@@ -1,6 +1,24 @@
 import { useState, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
-import type { Goal, Milestone } from '../../types';
+import type { Goal } from '../../types';
+
+// Form-specific types use strings for date inputs
+type FormMilestone = {
+  title: string;
+  targetDate: string; // yyyy-mm-dd
+  completed: boolean;
+};
+
+type FormGoal = {
+  title: string;
+  description: string;
+  type: Goal['type'];
+  priority: Goal['priority'];
+  status: Goal['status'];
+  targetDate: string;
+  progress: number;
+  milestones: FormMilestone[];
+};
 
 interface GoalModalProps {
   isOpen: boolean;
@@ -10,18 +28,18 @@ interface GoalModalProps {
 }
 
 const GoalModal: React.FC<GoalModalProps> = ({ isOpen, onClose, onSave, editingGoal }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormGoal>({
     title: '',
     description: '',
-    type: 'academic' as Goal['type'],
-    priority: 'medium' as Goal['priority'],
-    status: 'active' as Goal['status'],
+    type: 'academic',
+    priority: 'medium',
+    status: 'active',
     targetDate: '',
     progress: 0,
-    milestones: [] as Omit<Milestone, 'id'>[]
+    milestones: []
   });
 
-  const [newMilestone, setNewMilestone] = useState({
+  const [newMilestone, setNewMilestone] = useState<FormMilestone>({
     title: '',
     targetDate: '',
     completed: false
@@ -31,7 +49,7 @@ const GoalModal: React.FC<GoalModalProps> = ({ isOpen, onClose, onSave, editingG
     if (editingGoal) {
       setFormData({
         title: editingGoal.title,
-        description: editingGoal.description,
+        description: editingGoal.description || '',
         type: editingGoal.type,
         priority: editingGoal.priority,
         status: editingGoal.status,
@@ -61,8 +79,13 @@ const GoalModal: React.FC<GoalModalProps> = ({ isOpen, onClose, onSave, editingG
     e.preventDefault();
     
     const goalData: Omit<Goal, 'id' | 'createdAt' | 'updatedAt'> = {
-      ...formData,
+      title: formData.title,
+      description: formData.description,
+      type: formData.type,
+      priority: formData.priority,
+      status: formData.status,
       targetDate: new Date(formData.targetDate),
+      progress: formData.progress,
       milestones: formData.milestones.map((milestone, index) => ({
         id: `${Date.now()}-${index}`,
         title: milestone.title,

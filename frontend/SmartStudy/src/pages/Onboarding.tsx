@@ -1,4 +1,3 @@
-import React from 'react';
 import OnboardingFlow from '../components/onboarding/OnboardingFlow';
 
 const Onboarding = () => {

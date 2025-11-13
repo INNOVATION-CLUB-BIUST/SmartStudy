@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { AnalyticsData, StudyTechnique, Course } from '../types';
+import type { AnalyticsData, StudyTechnique } from '../types';
 
 export interface StudySessionData {
   id: string;
@@ -229,8 +229,8 @@ const useAnalytics = () => {
     Object.keys(courseSessions).forEach(courseId => {
       const sessions = courseSessions[courseId];
       const totalHours = sessions.reduce((sum, s) => sum + (s.duration / 60), 0);
-      const avgFocus = sessions.reduce((sum, s) => sum + s.focusScore, 0) / sessions.length;
-      courseProgress[courseId] = Math.round((totalHours / 20) * 100); // Assume 20 hours is 100% progress
+  // calculate average focus if needed later
+  courseProgress[courseId] = Math.round((totalHours / 20) * 100); // Assume 20 hours is 100% progress
     });
 
     setAnalyticsData({

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Users, BookOpen, Search, ArrowRight, Star } from 'lucide-react';
 
 const GroupStudy = () => {

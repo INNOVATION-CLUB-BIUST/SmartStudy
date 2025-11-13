@@ -1,11 +1,9 @@
-import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   BookOpen, 
   Calendar, 
   BarChart, 
   Target, 
-  Clock,
   Brain,
   Users,
   Settings,
