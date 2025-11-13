@@ -1,4 +1,3 @@
-import { } from 'react';
 import { CheckCircle } from 'lucide-react';
 
 interface ProgressIndicatorProps {
