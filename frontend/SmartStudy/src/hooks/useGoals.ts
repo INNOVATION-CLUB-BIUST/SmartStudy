@@ -1,38 +1,8 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { getCurrentUser } from '../services/auth';
-
-export interface Goal {
-  id: string;
-  userId: string;
-  title: string;
-  description?: string;
-  type?: 'academic' | 'study' | 'personal' | 'career';
-  priority: 'low' | 'medium' | 'high';
-  status?: 'active' | 'completed' | 'paused';
-  targetDate: Date;
-  progress?: number; // 0-100
-  milestones?: Milestone[];
-  createdAt: Date;
-  updatedAt?: Date;
-}
-
-export interface Milestone {
-  id: string;
-  title: string;
-  completed: boolean;
-  targetDate: Date;
-  completedAt?: Date;
-}
-
-export interface GoalStats {
-  total: number;
-  completed: number;
-  active: number;
-  paused: number;
-  averageProgress: number;
-}
+import type { Goal, Milestone, GoalStats } from '../types';
 
 const useGoals = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -58,21 +28,26 @@ const useGoals = () => {
         );
         
         const querySnapshot = await getDocs(goalsQuery);
-        const fetchedGoals: Goal[] = querySnapshot.docs.map(doc => {
-          const data = doc.data();
+        const fetchedGoals: Goal[] = querySnapshot.docs.map(docSnap => {
+          const data = docSnap.data() as any;
           return {
-            id: doc.id,
-            userId: data.userId,
+            id: docSnap.id,
             title: data.title,
             description: data.description || '',
             type: data.type || 'academic',
-            priority: data.priority,
+            priority: data.priority || 'medium',
             status: data.status || 'active',
-            targetDate: new Date(data.targetDate),
+            targetDate: data.targetDate ? new Date(data.targetDate) : new Date(),
             progress: data.progress || 0,
-            milestones: data.milestones || [],
-            createdAt: new Date(data.createdAt),
-            updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined
+            milestones: (data.milestones || []).map((m: any) => ({
+              id: m.id,
+              title: m.title,
+              completed: m.completed,
+              targetDate: m.targetDate ? new Date(m.targetDate) : new Date(),
+              completedAt: m.completedAt ? new Date(m.completedAt) : undefined
+            })) as Milestone[],
+            createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+            updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date()
           };
         });
 
@@ -116,12 +91,57 @@ const useGoals = () => {
     );
   };
 
+  // Basic mutators (local + Firestore)
+  const addGoal = async (goal: Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      const docRef = await addDoc(collection(db, 'goals'), {
+        ...goal,
+        userId: getCurrentUser()?.uid || null,
+        createdAt: new Date().toISOString()
+      });
+      setGoals(prev => [{ ...goal, id: docRef.id, createdAt: new Date(), updatedAt: new Date() } as Goal, ...prev]);
+    } catch (err) {
+      console.error('Failed to add goal', err);
+    }
+  };
+
+  const updateGoal = async (id: string, updates: Partial<Goal>) => {
+    try {
+      const docRef = doc(db, 'goals', id);
+      await updateDoc(docRef, { ...updates, updatedAt: new Date().toISOString() } as any);
+      setGoals(prev => prev.map(g => g.id === id ? { ...g, ...(updates as any) } : g));
+    } catch (err) {
+      console.error('Failed to update goal', err);
+    }
+  };
+
+  const deleteGoal = async (id: string) => {
+    try {
+      // simple local removal; actual deletion in Firestore can be added
+      setGoals(prev => prev.filter(g => g.id !== id));
+    } catch (err) {
+      console.error('Failed to delete goal', err);
+    }
+  };
+
+  const toggleMilestone = (goalId: string, milestoneId: string) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id !== goalId) return goal;
+      const updatedMilestones = goal.milestones.map(m => m.id === milestoneId ? { ...m, completed: !m.completed } : m);
+      return { ...goal, milestones: updatedMilestones } as Goal;
+    }));
+  };
+
   return {
     goals,
     loading,
     error,
     getStats,
-    getUpcomingGoals
+    getUpcomingGoals,
+    addGoal,
+    updateGoal,
+    deleteGoal,
+    toggleMilestone
   };
 };
 

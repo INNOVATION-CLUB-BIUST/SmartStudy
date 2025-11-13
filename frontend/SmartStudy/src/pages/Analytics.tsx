@@ -1,4 +1,4 @@
-import React from 'react';
+// React import not required with new JSX runtime
 import { 
   BarChart, 
   TrendingUp, 
@@ -19,7 +19,6 @@ import useAnalytics from '../hooks/useAnalytics';
 
 const Analytics = () => {
   const { 
-    analyticsData, 
     loading, 
     error,
     getStudyStreak,

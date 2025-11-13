@@ -127,7 +127,7 @@ export const createMultipleStudySessions = (count: number, assignmentId: string,
 
 // Utility functions for creating realistic test data
 
-export const createWeeklySchedule = (courseId: string, courseName: string): ClassSchedule[] => {
+export const createWeeklySchedule = (_courseId: string, courseName: string): ClassSchedule[] => {
   return [
     {
       dayOfWeek: 1, // Monday
