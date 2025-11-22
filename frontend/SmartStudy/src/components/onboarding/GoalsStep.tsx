@@ -3,11 +3,11 @@ import { Target, BookOpen, Trophy, Clock, TrendingUp } from 'lucide-react';
 
 export interface GoalsStepData {
   primaryGoal: '' | 'improve-grades' | 'maintain-gpa' | 'time-management' | 'study-skills' | 'exam-prep';
-  gpaTarget: string; // keep as string for simplicity in controlled inputs
-  studyHoursPerWeek: string; // keep as string
-  focusAreas: string[];
-  graduationDate: string; // ISO date string
-  careerGoals: string;
+  gpaTarget: string;
+  studyHoursPerWeek: string;
+  course: string;
+  graduationMonth: string;
+  graduationYear: string;
 }
 
 interface GoalsStepProps {
@@ -16,12 +16,12 @@ interface GoalsStepProps {
 }
 
 const defaultGoalsStepData: GoalsStepData = {
-  primaryGoal: '',
+  primaryGoal:'',
   gpaTarget: '',
   studyHoursPerWeek: '',
-  focusAreas: [],
-  graduationDate: '',
-  careerGoals: '',
+  course: '',
+  graduationMonth: '',
+  graduationYear: '',
 };
 
 const GoalsStep = ({ data, onDataChange }: GoalsStepProps) => {
@@ -36,14 +36,6 @@ const GoalsStep = ({ data, onDataChange }: GoalsStepProps) => {
     onDataChange(newData);
   };
 
-  const handleFocusAreaToggle = (area: string) => {
-    const currentAreas = formData.focusAreas;
-    const newAreas = currentAreas.includes(area)
-      ? currentAreas.filter((a: string) => a !== area)
-      : [...currentAreas, area];
-    handleInputChange('focusAreas', newAreas);
-  };
-
   const primaryGoals = [
     { id: 'improve-grades', label: 'Improve my grades', icon: TrendingUp },
     { id: 'maintain-gpa', label: 'Maintain my current GPA', icon: Trophy },
@@ -52,24 +44,13 @@ const GoalsStep = ({ data, onDataChange }: GoalsStepProps) => {
     { id: 'exam-prep', label: 'Better exam preparation', icon: Target },
   ];
 
-  const focusAreas = [
-  // Engineering Courses
-  'Computer Science',
-  'Electrical Engineering',
-  'Mechanical Engineering',
-  'Chemical Engineering',
-  'Civil Engineering',
-  // Science Courses
-  'Mathematics',
-  'Physics',
-  'Chemistry',
-  'Biology',
-  'Statistics',
-  // General Skills
-  'Programming',
-  'Data Analysis',
-  'Research Methods'
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
   ];
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 10 }, (_, i) => (currentYear + i).toString());
 
   return (
     <div className="space-y-8">
@@ -134,47 +115,43 @@ const GoalsStep = ({ data, onDataChange }: GoalsStepProps) => {
         </div>
       </div>
 
-      {/* Focus Areas */}
-      <div className="space-y-4">
-        <label className="text-lg font-medium text-orange-300">What areas do you want to focus on? (Select all that apply)</label>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {focusAreas.map((area) => (
-            <button
-              key={area}
-              onClick={() => handleFocusAreaToggle(area)}
-              className={`p-3 rounded-lg border transition-all duration-300 text-sm ${
-                formData.focusAreas.includes(area)
-                  ? 'border-orange-500 bg-orange-500/20 text-white'
-                  : 'border-slate-600 bg-slate-700/50 text-slate-300 hover:border-orange-500/50 hover:bg-orange-500/10'
-              }`}
-            >
-              {area}
-            </button>
-          ))}
-        </div>
+      {/* Course/Program */}
+      <div className="space-y-2">
+        <label className="text-lg font-medium text-orange-300">Course / Program</label>
+        <input
+          type="text"
+          value={formData.course}
+          onChange={(e) => handleInputChange('course', e.target.value)}
+          className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+          placeholder="e.g. Computer Engineering, BSc Computer Science"
+        />
       </div>
 
       {/* Graduation Date */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-orange-300">Expected Graduation Date</label>
-        <input
-          type="date"
-          value={formData.graduationDate}
-          onChange={(e) => handleInputChange('graduationDate', e.target.value)}
-          className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
-        />
-      </div>
-
-      {/* Career Goals */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-orange-300">Career Goals (Optional)</label>
-        <textarea
-          value={formData.careerGoals}
-          onChange={(e) => handleInputChange('careerGoals', e.target.value)}
-          className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
-          placeholder="Tell us about your career aspirations..."
-          rows={3}
-        />
+        <div className="grid grid-cols-2 gap-4">
+          <select
+            value={formData.graduationMonth}
+            onChange={(e) => handleInputChange('graduationMonth', e.target.value)}
+            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+          >
+            <option value="">Month</option>
+            {months.map((month) => (
+              <option key={month} value={month}>{month}</option>
+            ))}
+          </select>
+          <select
+            value={formData.graduationYear}
+            onChange={(e) => handleInputChange('graduationYear', e.target.value)}
+            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+          >
+            <option value="">Year</option>
+            {years.map((year) => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   );
