@@ -14,6 +14,7 @@ import {
   Target,
   Clock
 } from 'lucide-react';
+import { signOut } from '../../services/auth';
 
 const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -21,7 +22,18 @@ const Header = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Handle logout logic
+    // Handle logout logic - use firebase sighout and remove localstorage
+    signOut();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('role');
+    localStorage.removeItem('id');
+    localStorage.removeItem('email');
+    localStorage.removeItem('username');
+    localStorage.removeItem('password');
+    localStorage.removeItem('refreshToken');
+    
+
     navigate('/');
   };
 
