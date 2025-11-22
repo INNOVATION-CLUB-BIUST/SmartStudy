@@ -34,7 +34,7 @@ How to use this file
 
 ## This week's priorities (small, high-impact — pick 1–2)
 
-1) Use different account (sign-out & restart onboarding)
+- Use different account (sign-out & restart onboarding) — Completed
 - What: Add a small button to let a signed-in user sign out and restart onboarding.
 - Where: `src/components/layout/Header.tsx` (preferred) or `src/components/onboarding/ProfileStep.tsx`.
 - Acceptance: Calls `signOut()` then navigates to `/onboarding` (fresh state). Clears session-block so onboarding is available.
@@ -42,7 +42,7 @@ How to use this file
 - Assigned: Frontend A (you)
 - Due: This week
 
-2) Router-level guard for `/onboarding` (light)
+- Router-level guard for `/onboarding` (light) — Completed
 - What: Mirror the component guard in `App.tsx` or `ProtectedRoute.tsx` to avoid shallow route bypass.
 - Where: `src/App.tsx`, `src/components/ProtectedRoute.tsx`.
 - Acceptance: Signed-in users redirected to `/dashboard`; preserve completion override so final submit works.
@@ -95,8 +95,8 @@ If you'd like, I can now implement item 1 (the sign-out button) and run typechec
 Goal: deliver a stable onboarding flow, backend integration, basic tests, and CI. Tasks are small and student-friendly. Each week pick 1–3 items (start with the top of the list). I'll implement, run typechecks, and open PRs for review.
 
 Week 1 (this week)
-- ID 11: Implement 'Use different account' button in `src/components/layout/Header.tsx` — Frontend A — 1–2 hrs
-- ID 12: Add router-level guard for `/onboarding` (light) — Frontend B — 2–4 hrs
+- [x] ID 11: Implement 'Use different account' button in `src/components/layout/Header.tsx` — Frontend A — 1–2 hrs
+- [x] ID 12: Add router-level guard for `/onboarding` (light) — Frontend B — 2–4 hrs
 - ID 13: Backend verify onboarding API — Backend Devs — 3–6 hrs
 
 Week 2
