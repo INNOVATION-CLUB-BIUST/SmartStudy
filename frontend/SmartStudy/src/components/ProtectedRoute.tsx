@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { getCurrentUser } from '../services/auth';
 
@@ -15,6 +15,7 @@ export const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { user, loading } = useUser();
   const currentUser = getCurrentUser();
+  const location = useLocation();
 
   // Show loading state while checking auth/user profile
   if (loading) {
@@ -36,7 +37,7 @@ export const ProtectedRoute = ({
   }
 
   // If user has completed onboarding but trying to access onboarding page
-  if (currentUser && user?.onboardingCompleted && window.location.pathname === '/onboarding') {
+  if (currentUser && user?.onboardingCompleted && location.pathname === '/onboarding') {
     return <Navigate to="/dashboard" replace />;
   }
 
