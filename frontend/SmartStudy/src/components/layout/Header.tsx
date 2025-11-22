@@ -12,8 +12,7 @@ import {
   Calendar,
   BarChart,
   Target,
-  Clock,
-  RefreshCw
+  Clock
 } from 'lucide-react';
 import { signOut } from '../../services/auth';
 
@@ -114,18 +113,7 @@ const Header = () => {
                     <Settings className="h-4 w-4" />
                     <span>Settings</span>
                   </Link>
-                  <hr className="my-2 border-slate-600" />
-                    <button
-                    onClick={() => {
-                      signOut();
-                      localStorage.clear();
-                      navigate('/onboarding');
-                    }}
-                    className="flex items-center space-x-2 px-4 py-2 text-slate-300 hover:bg-slate-700 hover:text-orange-400 transition-colors duration-300 w-full text-left"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                    <span>Restart Onboarding</span>
-                  </button>
+
                   <button
                     onClick={handleLogout}
                     className="flex items-center space-x-2 px-4 py-2 text-slate-300 hover:bg-slate-700 hover:text-red-400 transition-colors duration-300 w-full text-left"
