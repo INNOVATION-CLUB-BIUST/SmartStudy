@@ -5,9 +5,10 @@ import { getCurrentUser } from '../../services/auth';
 interface ProfileStepProps {
   data: Record<string, unknown>;
   onDataChange: (data: Record<string, unknown>) => void;
+  errors?: Record<string, string>;
 }
 
-const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
+const ProfileStep = ({ data, onDataChange, errors = {} }: ProfileStepProps) => {
   const profileData = data as Record<string, string | undefined>;
   
   const currentUser = getCurrentUser();
@@ -30,6 +31,12 @@ const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
     onDataChange(newData);
   };
 
+  const getInputClass = (field: string) => `w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:ring-1 transition-all duration-300 ${
+    errors[field] 
+      ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+      : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'
+  }`;
+
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -50,7 +57,7 @@ const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
             type="text"
             value={formData.firstName}
             onChange={(e) => handleInputChange('firstName', e.target.value)}
-            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+            className={getInputClass('firstName')}
             placeholder="Enter your first name"
           />
         </div>
@@ -62,7 +69,7 @@ const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
             type="text"
             value={formData.lastName}
             onChange={(e) => handleInputChange('lastName', e.target.value)}
-            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+            className={getInputClass('lastName')}
             placeholder="Enter your last name"
           />
         </div>
@@ -76,7 +83,11 @@ const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
               type="email"
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+              className={`w-full pl-10 pr-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:ring-1 transition-all duration-300 ${
+                errors.email 
+                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                  : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'
+              }`}
               placeholder="your.email@biust.ac.bw"
               // Allow editing even when logged in to enable creating a new account
               disabled={false}
@@ -98,7 +109,7 @@ const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
                 type="password"
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
-                className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+                className={getInputClass('password')}
                 placeholder="Create a password"
               />
             </div>
@@ -109,7 +120,7 @@ const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
                 type="password"
                 value={formData.confirmPassword}
                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+                className={getInputClass('confirmPassword')}
                 placeholder="Confirm your password"
               />
             </div>
@@ -125,7 +136,11 @@ const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
               type="text"
               value={formData.university}
               onChange={(e) => handleInputChange('university', e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+              className={`w-full pl-10 pr-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:ring-1 transition-all duration-300 ${
+                errors.university 
+                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                  : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'
+              }`}
               placeholder="BIUST"
             />
           </div>
@@ -138,7 +153,7 @@ const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
             type="text"
             value={formData.studentId}
             onChange={(e) => handleInputChange('studentId', e.target.value)}
-            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+            className={getInputClass('studentId')}
             placeholder="Enter your student ID"
           />
         </div>
@@ -149,7 +164,11 @@ const ProfileStep = ({ data, onDataChange }: ProfileStepProps) => {
           <select
             value={formData.yearOfStudy}
             onChange={(e) => handleInputChange('yearOfStudy', e.target.value)}
-            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+            className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white focus:ring-1 transition-all duration-300 ${
+              errors.yearOfStudy 
+                ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'
+            }`}
           >
             <option value="">Select your year</option>
             <option value="1st Year">1st Year</option>

@@ -2,90 +2,19 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ProgressIndicator from './ProgressIndicator';
-import ProfileStep from './ProfileStep';
-import GoalsStep, { type GoalsStepData } from './GoalsStep';
+import GetStartedStep, { type GetStartedData } from './GetStartedStep';
 import StudyTimeStep, { type StudyTimeData } from './StudyTimeStep';
-import ScheduleStep, { type ScheduleData } from './ScheduleStep';
 import EventPrepStep, { type EventPrepData } from './EventPrepStep';
 import OptimizationStep, { type OptimizationData } from './OptimizationStep';
 import { getCurrentUser, signUp, subscribeToAuth } from '../../services/auth';
 import type { User } from 'firebase/auth';
-import { postOnboarding } from '../../services/api';
+import { postOnboarding, type OnboardingPayload } from '../../services/api';
 
-// Extended types to match actual form data from step components
-interface ExtendedProfileData {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  studentId?: string;
-  university?: string;
-  yearOfStudy?: string;
-  major?: string;
-  dateOfBirth?: string;
-  [key: string]: string | undefined;
-}
-
-interface ExtendedGoalsData {
-  primaryGoal?: string;
-  gpaTarget?: string;
-  studyHoursPerWeek?: string;
-  focusAreas?: string[];
-  graduationDate?: string;
-  careerGoals?: string;
-  [key: string]: string | string[] | undefined;
-}
-
-interface ExtendedStudyTimesData {
-  preferredStudyTime?: string;
-  studyDuration?: string;
-  breakDuration?: string;
-  studyEnvironment?: string;
-  focusLevel?: string;
-  studyMethods?: string[];
-  distractions?: string[];
-  [key: string]: string | string[] | undefined;
-}
-
-interface ExtendedScheduleData {
-  weeklySchedule?: Record<string, Record<string, string>>;
-  classSchedule?: unknown[];
-  extracurricularActivities?: unknown[];
-  workSchedule?: Record<string, unknown>;
-  freeTime?: string;
-  studyBlocks?: unknown[];
-  [key: string]: unknown;
-}
-
-interface ExtendedEventPrepData {
-  upcomingExams?: unknown[];
-  assignmentDeadlines?: unknown[];
-  projectDeadlines?: unknown[];
-  prepTimePreference?: string;
-  studyIntensity?: string;
-  reminderPreferences?: string[];
-  stressLevel?: string;
-  [key: string]: unknown;
-}
-
-interface ExtendedOptimizationData {
-  aiPreferences?: string[];
-  learningStyle?: string;
-  productivityTools?: string[];
-  notificationSettings?: Record<string, unknown>;
-  privacySettings?: Record<string, unknown>;
-  optimizationGoals?: string[];
-  [key: string]: unknown;
-}
-
-interface ExtendedOnboardingFormData {
-  profile: ExtendedProfileData;
-  goals: ExtendedGoalsData;
-  studyTimes: ExtendedStudyTimesData;
-  schedule: ExtendedScheduleData;
-  eventPrep: ExtendedEventPrepData;
-  optimization: ExtendedOptimizationData;
+interface OnboardingFormData {
+  getStarted: Partial<GetStartedData>;
+  studyPreferences: Partial<StudyTimeData>;
+  academicPlanning: Partial<EventPrepData>;
+  personalization: Partial<OptimizationData>;
 }
 
 const OnboardingFlow = () => {
@@ -93,36 +22,32 @@ const OnboardingFlow = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [userCreated, setUserCreated] = useState(false);
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
-  const [formData, setFormData] = useState<ExtendedOnboardingFormData>(() => {
+  const [formData, setFormData] = useState<OnboardingFormData>(() => {
     const draft = localStorage.getItem('onboardingDraft');
     if (draft) {
       try {
-        return JSON.parse(draft) as ExtendedOnboardingFormData;
+        return JSON.parse(draft) as OnboardingFormData;
       } catch { 
-        // 5
+        // Ignore parse errors
       }
     }
     return {
-      profile: {},
-      goals: {},
-      studyTimes: {},
-      schedule: {},
-      eventPrep: {},
-      optimization: {},
+      getStarted: {},
+      studyPreferences: {},
+      academicPlanning: {},
+      personalization: {},
     };
   });
 
   const steps = [
-    { id: 'profile', title: 'Profile Setup', component: ProfileStep },
-    { id: 'goals', title: 'Academic Goals', component: GoalsStep },
-    { id: 'studyTimes', title: 'Study Preferences', component: StudyTimeStep },
-    { id: 'schedule', title: 'Schedule Setup', component: ScheduleStep },
-    { id: 'eventPrep', title: 'Event Preparation', component: EventPrepStep },
-    { id: 'optimization', title: 'Optimization', component: OptimizationStep },
+    { id: 'getStarted', title: 'Get Started', component: GetStartedStep },
+    { id: 'studyPreferences', title: 'Study Preferences', component: StudyTimeStep },
+    { id: 'academicPlanning', title: 'Academic Planning', component: EventPrepStep },
+    { id: 'personalization', title: 'Personalization', component: OptimizationStep },
   ];
 
   // Listen to auth state and block access if signed in
@@ -140,70 +65,111 @@ const OnboardingFlow = () => {
     }
   }, [authReady, authUser, isCompleting, navigate]);
 
-  const handleNext = async () => {
-    setError('');
-    
-    // Validate ProfileStep before proceeding
-    if (currentStep === 0) {
-      const profileData = formData.profile;
+  const validateStep = (stepIndex: number): boolean => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+
+    if (stepIndex === 0) { // Get Started (Profile + Goals)
+      const data = formData.getStarted;
+      // Profile fields
+      if (!data.firstName) newErrors.firstName = 'First name is required';
+      if (!data.lastName) newErrors.lastName = 'Last name is required';
+      if (!data.email) newErrors.email = 'Email is required';
+      if (!data.university) newErrors.university = 'University is required';
+      if (!data.studentId) newErrors.studentId = 'Student ID is required';
+      if (!data.yearOfStudy) newErrors.yearOfStudy = 'Year of study is required';
       
-      if (!profileData.firstName || !profileData.lastName) {
-        setError('First name and last name are required');
-        return;
-      }
-      
-      if (!profileData.email) {
-        setError('Email is required');
-        return;
-      }
-      
-      // Always validate password at the start since onboarding occurs before account creation
       if (!userCreated) {
-        if (!profileData.password) {
-          setError('Password is required');
-          return;
-        }
-        if (profileData.password.length < 6) {
-          setError('Password must be at least 6 characters');
-          return;
-        }
-        if (profileData.password !== profileData.confirmPassword) {
-          setError('Passwords do not match');
-          return;
-        }
+        if (!data.password) newErrors.password = 'Password is required';
+        else if (data.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+        
+        if (data.password !== data.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
       }
+
+      // Goals fields
+      if (!data.primaryGoal) newErrors.primaryGoal = 'Primary goal is required';
+      if (!data.gpaTarget) newErrors.gpaTarget = 'Target GPA is required';
+      else {
+        const gpa = parseFloat(data.gpaTarget);
+        if (isNaN(gpa) || gpa < 0 || gpa > 5.0) newErrors.gpaTarget = 'GPA must be between 0 and 5.0';
+      }
+      if (!data.course) newErrors.course = 'Course/Program is required';
+      if (!data.graduationMonth) newErrors.graduationMonth = 'Graduation month is required';
+      if (!data.graduationYear) newErrors.graduationYear = 'Graduation year is required';
+    } else if (stepIndex === 1) { // Study Preferences
+      const data = formData.studyPreferences;
+      if (!data.preferredStudyTime) newErrors.preferredStudyTime = 'Preferred study time is required';
+      if (!data.studyDuration) newErrors.studyDuration = 'Study duration is required';
+      if (!data.breakDuration) newErrors.breakDuration = 'Break duration is required';
+      if (!data.studyEnvironment) newErrors.studyEnvironment = 'Study environment is required';
+      if (!data.focusLevel) newErrors.focusLevel = 'Focus level is required';
+      if (!data.freeTime) newErrors.freeTime = 'Free time preference is required';
+    } else if (stepIndex === 2) { // Academic Planning
+      const data = formData.academicPlanning;
+      if (!data.prepTimePreference) newErrors.prepTimePreference = 'Prep time preference is required';
+      if (!data.studyIntensity) newErrors.studyIntensity = 'Study intensity is required';
+      if (!data.stressLevel) newErrors.stressLevel = 'Stress level is required';
+    } else if (stepIndex === 3) { // Personalization
+      const data = formData.personalization;
+      if (!data.learningStyle) newErrors.learningStyle = 'Learning style is required';
     }
-    
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      isValid = false;
+    } else {
+      setErrors({});
+    }
+
+    return isValid;
+  };
+
+  const handleNext = async () => {
+    if (validateStep(currentStep)) {
+      if (currentStep < steps.length - 1) {
+        setCurrentStep(currentStep + 1);
+        window.scrollTo(0, 0);
+      }
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+      setErrors({});
+      window.scrollTo(0, 0);
     }
   };
 
   const handleStepData = (stepId: string, data: unknown) => {
     setFormData(prev => {
-      const next = { ...prev, [stepId]: data } as ExtendedOnboardingFormData;
+      const next = { ...prev, [stepId]: data } as OnboardingFormData;
       localStorage.setItem('onboardingDraft', JSON.stringify(next));
       return next;
     });
+    // Clear errors for fields that are being updated
+    if (Object.keys(errors).length > 0) {
+      const newErrors = { ...errors };
+      Object.keys(data as object).forEach(key => {
+        delete newErrors[key];
+      });
+      setErrors(newErrors);
+    }
   };
 
   const handleComplete = async () => {
+    if (!validateStep(currentStep)) return;
+
     setIsLoading(true);
     setIsCompleting(true);
-    setError('');
+    setErrors({});
 
     let user = getCurrentUser();
     // Create the account now if not signed in
     if (!user) {
-      const { email, password } = formData.profile as { email?: string; password?: string };
+      const { email, password } = formData.getStarted;
       if (!email || !password) {
-        setError('Email and password are required to create your account');
+        setErrors({ general: 'Email and password are required to create your account' });
         setIsLoading(false);
         setIsCompleting(false);
         return;
@@ -213,7 +179,7 @@ const OnboardingFlow = () => {
         setUserCreated(true);
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to create account';
-        setError(errorMessage);
+        setErrors({ general: errorMessage });
         console.error('Signup error:', err);
         setIsLoading(false);
         setIsCompleting(false);
@@ -221,28 +187,27 @@ const OnboardingFlow = () => {
       }
     }
 
-    // Simple payload - just what backend needs
-    const payload = {
+    // Construct payload from new form structure
+    const payload: OnboardingPayload = {
       userId: user.uid,
-      email: user.email || formData.profile.email || '',
+      email: user.email || formData.getStarted.email || '',
       profile: {
-        firstName: formData.profile.firstName || '',
-        lastName: formData.profile.lastName || '',
-        university: formData.profile.university || '',
-        major: formData.profile.major || '',
-        yearOfStudy: formData.profile.yearOfStudy || '',
-        studentId: formData.profile.studentId || '',
-        dateOfBirth: formData.profile.dateOfBirth || '',
+        firstName: formData.getStarted.firstName || '',
+        lastName: formData.getStarted.lastName || '',
+        university: formData.getStarted.university || '',
+        major: formData.getStarted.course || '',
+        yearOfStudy: formData.getStarted.yearOfStudy || '',
+        studentId: formData.getStarted.studentId || '',
       },
-      subjects: formData.goals.focusAreas || [],
-      goals: formData.goals.primaryGoal ? [{
-        title: formData.goals.primaryGoal,
-        targetDate: formData.goals.graduationDate || '',
+      course: formData.getStarted.course || '',
+      goals: formData.getStarted.primaryGoal ? [{
+        title: formData.getStarted.primaryGoal,
+        targetDate: `${formData.getStarted.graduationMonth} ${formData.getStarted.graduationYear}`,
         priority: 'high'
       }] : [],
       preferences: {
-        studyTimePreference: formData.studyTimes.preferredStudyTime || 'morning',
-        weeklyStudyHours: Number(formData.goals.studyHoursPerWeek) || 20,
+        studyTimePreference: formData.studyPreferences.preferredStudyTime || 'morning',
+        weeklyStudyHours: 20, // Default value since we removed this field
       },
     };
 
@@ -260,17 +225,33 @@ const OnboardingFlow = () => {
       setIsLoading(false);
       setIsCompleting(false);
       const errorMessage = error instanceof Error ? error.message : 'Failed to complete onboarding';
-      setError(errorMessage);
+      setErrors({ general: errorMessage });
       console.error('Onboarding error:', error);
     }
   };
 
-  
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-800 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-800 text-white relative overflow-hidden">
+      {/* Toast Notifications */}
+      <div className="fixed top-4 right-4 z-50 space-y-2 pointer-events-none">
+        {Object.entries(errors).map(([key, message]) => (
+          <div 
+            key={key}
+            className="bg-red-500/90 backdrop-blur-md text-white px-6 py-4 rounded-xl shadow-2xl border border-red-400/50 flex items-center animate-in slide-in-from-right-full duration-300 pointer-events-auto max-w-md"
+          >
+            <div className="bg-white/20 p-2 rounded-full mr-3">
+              <CheckCircle className="h-5 w-5 text-white rotate-45" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm opacity-90">Action Required</p>
+              <p className="text-sm font-medium">{message}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Header */}
-      <div className="bg-black/50 backdrop-blur-md border-b border-orange-500/20">
+      <div className="bg-black/50 backdrop-blur-md border-b border-orange-500/20 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -299,53 +280,35 @@ const OnboardingFlow = () => {
         />
       </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className="max-w-4xl mx-auto px-4 pb-4">
-          <div className="bg-red-500/20 border border-red-500 text-red-300 p-4 rounded-lg">
-            <p className="font-semibold">Error</p>
-            <p className="text-sm">{error}</p>
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 pb-8">
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-orange-500/20 p-8">
-          {steps[currentStep].id === 'profile' && (
-            <ProfileStep
-              data={formData.profile}
-              onDataChange={(data) => handleStepData('profile', data)}
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-orange-500/20 p-8 transition-all duration-500">
+          {steps[currentStep].id === 'getStarted' && (
+            <GetStartedStep
+              data={formData.getStarted}
+              onDataChange={(data: GetStartedData) => handleStepData('getStarted', data)}
+              errors={errors}
             />
           )}
-          {steps[currentStep].id === 'goals' && (
-            <GoalsStep
-              data={formData.goals as Partial<GoalsStepData>}
-              onDataChange={(data: GoalsStepData) => handleStepData('goals', data)}
-            />
-          )}
-          {steps[currentStep].id === 'studyTimes' && (
+          {steps[currentStep].id === 'studyPreferences' && (
             <StudyTimeStep
-              data={formData.studyTimes as Partial<StudyTimeData>}
-              onDataChange={(data: StudyTimeData) => handleStepData('studyTimes', data)}
+              data={formData.studyPreferences}
+              onDataChange={(data: StudyTimeData) => handleStepData('studyPreferences', data)}
+              errors={errors}
             />
           )}
-          {steps[currentStep].id === 'schedule' && (
-            <ScheduleStep
-              data={formData.schedule as Partial<ScheduleData>}
-              onDataChange={(data: ScheduleData) => handleStepData('schedule', data)}
-            />
-          )}
-          {steps[currentStep].id === 'eventPrep' && (
+          {steps[currentStep].id === 'academicPlanning' && (
             <EventPrepStep
-              data={formData.eventPrep as Partial<EventPrepData>}
-              onDataChange={(data: EventPrepData) => handleStepData('eventPrep', data)}
+              data={formData.academicPlanning}
+              onDataChange={(data: EventPrepData) => handleStepData('academicPlanning', data)}
+              errors={errors}
             />
           )}
-          {steps[currentStep].id === 'optimization' && (
+          {steps[currentStep].id === 'personalization' && (
             <OptimizationStep
-              data={formData.optimization as Partial<OptimizationData>}
-              onDataChange={(data: OptimizationData) => handleStepData('optimization', data)}
+              data={formData.personalization}
+              onDataChange={(data: OptimizationData) => handleStepData('personalization', data)}
+              errors={errors}
             />
           )}
         </div>

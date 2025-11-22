@@ -1,28 +1,16 @@
 import { useState } from 'react';
-import { Calendar, Clock, Zap, Users, BookOpen } from 'lucide-react';
+import { Calendar, Zap, Users, BookOpen } from 'lucide-react';
 
 type Weekday = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
 type TimeSlot = 'Morning' | 'Afternoon' | 'Evening' | 'Night';
 
 type WeeklySchedule = Partial<Record<Weekday, Partial<Record<TimeSlot, string>>>>;
 
-export interface ClassItem {
-  name: string;
-  days: string; // e.g., "Mon, Wed, Fri"
-  startTime: string; // HH:MM
-  endTime: string; // HH:MM
-}
 
-export interface WorkSchedule {
-  daysPerWeek?: string;
-  hoursPerWeek?: string;
-}
 
 export interface ScheduleData {
   weeklySchedule: WeeklySchedule;
-  classSchedule: ClassItem[];
   extracurricularActivities: string[];
-  workSchedule: WorkSchedule;
   freeTime: '' | 'weekends' | 'evenings' | 'afternoons' | 'flexible' | 'minimal';
   studyBlocks: unknown[];
 }
@@ -30,18 +18,17 @@ export interface ScheduleData {
 interface ScheduleStepProps {
   data?: Partial<ScheduleData>;
   onDataChange: (data: ScheduleData) => void;
+  errors?: Record<string, string>;
 }
 
 const defaultScheduleData: ScheduleData = {
   weeklySchedule: {},
-  classSchedule: [],
   extracurricularActivities: [],
-  workSchedule: {},
   freeTime: '',
   studyBlocks: [],
 };
 
-const ScheduleStep = ({ data, onDataChange }: ScheduleStepProps) => {
+const ScheduleStep = ({ data, onDataChange, errors = {} }: ScheduleStepProps) => {
   const [formData, setFormData] = useState<ScheduleData>({
     ...defaultScheduleData,
     ...data,
@@ -67,7 +54,6 @@ const ScheduleStep = ({ data, onDataChange }: ScheduleStepProps) => {
     { id: 'sports', label: 'Sports', icon: Zap },
     { id: 'clubs', label: 'Clubs/Societies', icon: Users },
     { id: 'volunteer', label: 'Volunteer Work', icon: BookOpen },
-    { id: 'part-time', label: 'Part-time Job', icon: Clock },
     { id: 'hobbies', label: 'Hobbies', icon: Calendar },
   ];
 
@@ -121,67 +107,7 @@ const ScheduleStep = ({ data, onDataChange }: ScheduleStepProps) => {
         </div>
       </div>
 
-      {/* Class Schedule */}
-      <div className="space-y-4">
-        <label className="text-lg font-medium text-orange-300">Add your classes</label>
-        <div className="space-y-3">
-          {formData.classSchedule.map((classItem: ClassItem, index: number) => (
-            <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-700/50 rounded-lg border border-orange-500/20">
-              <input
-                type="text"
-                placeholder="Course name"
-                value={classItem.name || ''}
-                onChange={(e) => {
-                  const newSchedule: ClassItem[] = [...formData.classSchedule];
-                  newSchedule[index] = { ...newSchedule[index], name: e.target.value };
-                  handleInputChange('classSchedule', newSchedule);
-                }}
-                className="px-3 py-2 bg-slate-600 border border-orange-500/30 rounded text-white placeholder-slate-400 focus:border-orange-500"
-              />
-              <input
-                type="text"
-                placeholder="Day (e.g., Mon, Wed, Fri)"
-                value={classItem.days || ''}
-                onChange={(e) => {
-                  const newSchedule: ClassItem[] = [...formData.classSchedule];
-                  newSchedule[index] = { ...newSchedule[index], days: e.target.value };
-                  handleInputChange('classSchedule', newSchedule);
-                }}
-                className="px-3 py-2 bg-slate-600 border border-orange-500/30 rounded text-white placeholder-slate-400 focus:border-orange-500"
-              />
-              <input
-                type="time"
-                value={classItem.startTime || ''}
-                onChange={(e) => {
-                  const newSchedule: ClassItem[] = [...formData.classSchedule];
-                  newSchedule[index] = { ...newSchedule[index], startTime: e.target.value };
-                  handleInputChange('classSchedule', newSchedule);
-                }}
-                className="px-3 py-2 bg-slate-600 border border-orange-500/30 rounded text-white focus:border-orange-500"
-              />
-              <input
-                type="time"
-                value={classItem.endTime || ''}
-                onChange={(e) => {
-                  const newSchedule: ClassItem[] = [...formData.classSchedule];
-                  newSchedule[index] = { ...newSchedule[index], endTime: e.target.value };
-                  handleInputChange('classSchedule', newSchedule);
-                }}
-                className="px-3 py-2 bg-slate-600 border border-orange-500/30 rounded text-white focus:border-orange-500"
-              />
-            </div>
-          ))}
-          <button
-            onClick={() => {
-              const newSchedule: ClassItem[] = [...formData.classSchedule, { name: '', days: '', startTime: '', endTime: '' }];
-              handleInputChange('classSchedule', newSchedule);
-            }}
-            className="w-full py-2 border-2 border-dashed border-orange-500/50 rounded-lg text-orange-300 hover:border-orange-500 hover:bg-orange-500/10 transition-all duration-300"
-          >
-            + Add Class
-          </button>
-        </div>
-      </div>
+
 
       {/* Extracurricular Activities */}
       <div className="space-y-4">
@@ -210,56 +136,17 @@ const ScheduleStep = ({ data, onDataChange }: ScheduleStepProps) => {
         </div>
       </div>
 
-      {/* Work Schedule */}
-      <div className="space-y-4">
-        <label className="text-lg font-medium text-orange-300">Do you have a part-time job?</label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm text-slate-300">Work days per week</label>
-            <select
-              value={formData.workSchedule.daysPerWeek || ''}
-              onChange={(e) => {
-                const newWorkSchedule = { ...formData.workSchedule, daysPerWeek: e.target.value };
-                handleInputChange('workSchedule', newWorkSchedule);
-              }}
-              className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500"
-            >
-              <option value="">Select</option>
-              <option value="0">No job</option>
-              <option value="1">1 day</option>
-              <option value="2">2 days</option>
-              <option value="3">3 days</option>
-              <option value="4">4 days</option>
-              <option value="5">5 days</option>
-              <option value="6">6 days</option>
-              <option value="7">7 days</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm text-slate-300">Hours per week</label>
-            <input
-              type="number"
-              min="0"
-              max="40"
-              value={formData.workSchedule.hoursPerWeek || ''}
-              onChange={(e) => {
-                const newWorkSchedule = { ...formData.workSchedule, hoursPerWeek: e.target.value };
-                handleInputChange('workSchedule', newWorkSchedule);
-              }}
-              className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500"
-              placeholder="0"
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Free Time */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-orange-300">When do you prefer to have free time?</label>
         <select
           value={formData.freeTime}
           onChange={(e) => handleInputChange('freeTime', e.target.value as ScheduleData['freeTime'])}
-          className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500"
+          className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white focus:ring-1 transition-all duration-300 ${
+            errors.freeTime 
+              ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+              : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'
+          }`}
         >
           <option value="">Select preference</option>
           <option value="weekends">Weekends only</option>
