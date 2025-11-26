@@ -241,6 +241,47 @@ const Modules = () => {
     setModules(modules.map(m => m.id === selectedModule.id ? updatedModule : m));
   };
 
+  /**
+   * Calculate the CA percentage earned for a module based on completed assessments only.
+   * Returns a percentage (0-100%) representing performance quality on completed work.
+   * 
+   * Note: This calculates against only the assessments that have been completed,
+   * not the total possible CA. This shows how well the student is performing
+   * on what they've done so far. The conversion to points (via caWeight) then
+   * reflects actual points contributed to the final grade.
+   * 
+   * Example: If 2 of 4 assessments are complete with scores of 8/10 and 6/10,
+   * the percentage is (8+6)/(10+10) * 100 = 70% (performance on completed work).
+   * This 70% is then converted to actual points: 70% * 40 total CA = 28 points.
+   */
+  const calculateCAPercentage = (module: Module) => {
+    const components = module.assessments.ca.components;
+    
+    // Calculate points earned from completed assessments
+    let pointsEarned = 0;
+    let maxPointsAvailable = 0;
+    
+    components.forEach(comp => {
+      if (comp.score !== undefined) {
+        // Calculate points for this component
+        // E.g., score=8 out of maxScore=10 for weight=10% → earns 8 points out of 10 possible
+        pointsEarned += (comp.score / comp.maxScore) * comp.weight;
+        maxPointsAvailable += comp.weight;
+      }
+    });
+    
+    // Return the percentage of CA marks earned relative to completed assessments
+    // If no assessments completed, return 0
+    if (maxPointsAvailable === 0) return 0;
+    
+    // Calculate overall CA percentage: (points earned / max points available) * 100
+    return (pointsEarned / maxPointsAvailable) * 100;
+  };
+
+  /**
+   * Calculate the CA points earned for a module (for display purposes).
+   * Returns weighted points earned (e.g., 14 out of 40 total CA weight).
+   */
   const calculateCAProgress = (module: Module) => {
     const earnedPoints = module.assessments.ca.components.reduce((sum, comp) => {
       if (comp.score !== undefined) {
@@ -296,7 +337,7 @@ const Modules = () => {
             {/* Column 3: Grade Calculator */}
             <div className="lg:col-span-1">
               <GradeCalculator 
-                currentCA={calculateCAProgress(selectedModule)}
+                currentCAPercentage={calculateCAPercentage(selectedModule)}
                 caWeight={selectedModule.assessments.ca.weight}
                 finalWeight={selectedModule.assessments.finalExam.weight}
                 passingMark={selectedModule.assessments.passingMark}

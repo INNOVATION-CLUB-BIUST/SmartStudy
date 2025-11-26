@@ -1,22 +1,33 @@
 import { Calculator, Target, TrendingUp } from 'lucide-react';
 
+/**
+ * Props for the GradeCalculator component.
+ * 
+ * @property currentCAPercentage - The percentage of CA marks earned (0-100%).
+ *   This is calculated as (total earned marks / total possible marks) * 100.
+ *   Example: If student scored 14/20 on assessments worth 40% total, this would be 70%.
+ * @property caWeight - The total weight of CA in the final grade (e.g., 40 or 50).
+ * @property finalWeight - The weight of the final exam (e.g., 60 or 50).
+ * @property passingMark - The minimum overall percentage to pass (e.g., 50).
+ * @property targetGrade - Optional target grade percentage the student aims for.
+ */
 interface GradeCalculatorProps {
-  currentCA: number;
+  currentCAPercentage: number;
   caWeight: number;
   finalWeight: number;
   passingMark: number;
   targetGrade?: number;
 }
 
-const GradeCalculator = ({ currentCA, caWeight, finalWeight, passingMark, targetGrade }: GradeCalculatorProps) => {
+const GradeCalculator = ({ currentCAPercentage, caWeight, finalWeight, passingMark, targetGrade }: GradeCalculatorProps) => {
+  // Convert the CA percentage to actual points based on CA weight
+  // Example: 70% earned on CA worth 40 points = 0.70 * 40 = 28 points
+  const caPointsEarned = (currentCAPercentage / 100) * caWeight;
+
   const calculateNeeded = (target: number) => {
-    // Formula: (Target - CurrentCA_Points) / Final_Weight * 100
-    // CurrentCA_Points is passed in as raw points out of 100 (e.g. 25.5 out of 40)
-    // Wait, the prop currentCA is likely the percentage of CA earned?
-    // Let's assume currentCA is the weighted points earned so far (e.g. 25 points out of 40 max CA points)
-    
-    // If currentCA is points:
-    const neededPoints = target - currentCA;
+    // Formula: (Target - CA_Points_Earned) / Final_Weight * 100
+    // This gives us the percentage needed on the final exam
+    const neededPoints = target - caPointsEarned;
     const neededPercentage = (neededPoints / finalWeight) * 100;
     
     return {
@@ -38,15 +49,15 @@ const GradeCalculator = ({ currentCA, caWeight, finalWeight, passingMark, target
       <div className="space-y-4">
         {/* Current Standing */}
         <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
-          <div className="text-sm text-slate-400 mb-1">Current Standing</div>
+          <div className="text-sm text-slate-400 mb-1">Current CA Standing</div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-white">{currentCA.toFixed(1)}%</span>
-            <span className="text-sm text-slate-500">/ {caWeight}% (CA)</span>
+            <span className="text-3xl font-bold text-white">{currentCAPercentage.toFixed(1)}%</span>
+            <span className="text-sm text-slate-500">({caPointsEarned.toFixed(1)} / {caWeight} pts)</span>
           </div>
           <div className="w-full h-1.5 bg-slate-800 rounded-full mt-3 overflow-hidden">
             <div 
               className="h-full bg-orange-500" 
-              style={{ width: `${(currentCA / caWeight) * 100}%` }}
+              style={{ width: `${currentCAPercentage}%` }}
             />
           </div>
         </div>
