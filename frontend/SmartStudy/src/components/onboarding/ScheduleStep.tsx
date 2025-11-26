@@ -142,7 +142,7 @@ const ScheduleStep = ({ data, onDataChange, errors = {} }: ScheduleStepProps) =>
         <select
           value={formData.freeTime}
           onChange={(e) => handleInputChange('freeTime', e.target.value as ScheduleData['freeTime'])}
-          className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white focus:ring-1 transition-all duration-300 ${
+          className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white focus:ring-2 transition-all duration-300 ${
             errors.freeTime 
               ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
               : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'

@@ -53,7 +53,7 @@ const GoalsStep = ({ data, onDataChange, errors = {} }: GoalsStepProps) => {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => (currentYear + i).toString());
 
-  const getInputClass = (field: string) => `w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:ring-1 transition-all duration-300 ${
+  const getInputClass = (field: string) => `w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:ring-2 transition-all duration-300 ${
     errors[field] 
       ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
       : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'
