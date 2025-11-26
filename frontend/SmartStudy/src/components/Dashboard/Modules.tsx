@@ -242,9 +242,17 @@ const Modules = () => {
   };
 
   /**
-   * Calculate the CA percentage earned for a module.
-   * Returns a percentage (0-100%) representing how much of the available CA marks were earned.
-   * Example: If student earned 14/20 marks from completed assessments worth 20%, this returns 70%.
+   * Calculate the CA percentage earned for a module based on completed assessments only.
+   * Returns a percentage (0-100%) representing performance quality on completed work.
+   * 
+   * Note: This calculates against only the assessments that have been completed,
+   * not the total possible CA. This shows how well the student is performing
+   * on what they've done so far. The conversion to points (via caWeight) then
+   * reflects actual points contributed to the final grade.
+   * 
+   * Example: If 2 of 4 assessments are complete with scores of 8/10 and 6/10,
+   * the percentage is (8+6)/(10+10) * 100 = 70% (performance on completed work).
+   * This 70% is then converted to actual points: 70% * 40 total CA = 28 points.
    */
   const calculateCAPercentage = (module: Module) => {
     const components = module.assessments.ca.components;
