@@ -241,6 +241,39 @@ const Modules = () => {
     setModules(modules.map(m => m.id === selectedModule.id ? updatedModule : m));
   };
 
+  /**
+   * Calculate the CA percentage earned for a module.
+   * Returns a percentage (0-100%) representing how much of the available CA marks were earned.
+   * Example: If student earned 14/20 marks and max possible is 20/20, this returns 70%.
+   */
+  const calculateCAPercentage = (module: Module) => {
+    const components = module.assessments.ca.components;
+    
+    // Calculate total earned percentage across all completed assessments
+    let totalEarnedPercentage = 0;
+    let totalWeightCompleted = 0;
+    
+    components.forEach(comp => {
+      if (comp.score !== undefined) {
+        // Calculate percentage for this component and weight it
+        const componentPercentage = (comp.score / comp.maxScore) * 100;
+        totalEarnedPercentage += (componentPercentage * comp.weight) / 100;
+        totalWeightCompleted += comp.weight;
+      }
+    });
+    
+    // Return the percentage of CA marks earned relative to completed assessments
+    // If no assessments completed, return 0
+    if (totalWeightCompleted === 0) return 0;
+    
+    // Calculate overall CA percentage: (earned weighted % / total weight) * 100
+    return (totalEarnedPercentage / totalWeightCompleted) * 100;
+  };
+
+  /**
+   * Calculate the CA points earned for a module (for display purposes).
+   * Returns weighted points earned (e.g., 14 out of 40 total CA weight).
+   */
   const calculateCAProgress = (module: Module) => {
     const earnedPoints = module.assessments.ca.components.reduce((sum, comp) => {
       if (comp.score !== undefined) {
@@ -296,7 +329,7 @@ const Modules = () => {
             {/* Column 3: Grade Calculator */}
             <div className="lg:col-span-1">
               <GradeCalculator 
-                currentCA={calculateCAProgress(selectedModule)}
+                currentCAPercentage={calculateCAPercentage(selectedModule)}
                 caWeight={selectedModule.assessments.ca.weight}
                 finalWeight={selectedModule.assessments.finalExam.weight}
                 passingMark={selectedModule.assessments.passingMark}
