@@ -7,10 +7,12 @@ import {
   Brain,
   Zap
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import useGoals from '../../hooks/useGoals';
 import { useUser } from '../../hooks/useUser';
 
 const Home = () => {
+  const navigate = useNavigate();
   const { user, loading: userLoading } = useUser();
   const { getStats, getUpcomingGoals, loading: goalsLoading } = useGoals();
   
@@ -131,11 +133,14 @@ const Home = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* My Subjects */}
+        {/* My Modules */}
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-orange-500/20">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-white">My Subjects</h2>
-            <button className="text-orange-400 hover:text-orange-300 text-sm font-medium">
+            <h2 className="text-xl font-bold text-white">My Modules</h2>
+            <button 
+              onClick={() => navigate('/dashboard/modules')}
+              className="text-orange-400 hover:text-orange-300 text-sm font-medium"
+            >
               Manage
             </button>
           </div>
@@ -143,15 +148,22 @@ const Home = () => {
           {!user?.subjects || user.subjects.length === 0 ? (
             <div className="text-center py-8">
               <BookOpen className="h-12 w-12 text-slate-600 mx-auto mb-3" />
-              <p className="text-slate-400 mb-4">No subjects added yet</p>
-              <button className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium">
-                Add Subjects
+              <p className="text-slate-400 mb-4">No modules added yet</p>
+              <button 
+                onClick={() => navigate('/dashboard/modules')}
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium"
+              >
+                Add Modules
               </button>
             </div>
           ) : (
             <div className="space-y-3">
               {user.subjects.map((subject, index) => (
-                <div key={index} className="p-4 bg-slate-700/50 rounded-lg border border-slate-600/50 hover:border-orange-500/30 transition-colors">
+                <div 
+                  key={index} 
+                  onClick={() => navigate('/dashboard/modules')}
+                  className="p-4 bg-slate-700/50 rounded-lg border border-slate-600/50 hover:border-orange-500/30 transition-colors cursor-pointer"
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <h3 className="font-medium text-white">{subject.name}</h3>

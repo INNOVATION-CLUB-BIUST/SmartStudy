@@ -12,7 +12,8 @@ import {
   Calendar,
   BarChart,
   Target,
-  Clock
+  Clock,
+  HelpCircle
 } from 'lucide-react';
 import { signOut } from '../../services/auth';
 
@@ -46,7 +47,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="bg-black/90 backdrop-blur-md shadow-lg border-b border-orange-500/20 sticky top-0 z-50">
+    <header className="bg-black/90 backdrop-blur-md shadow-lg border-b border-orange-500/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
@@ -78,6 +79,16 @@ const Header = () => {
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
+            {/* Help & Support */}
+            <Link to="/dashboard/help" className="p-2 text-slate-300 hover:text-orange-400 transition-colors duration-300">
+              <HelpCircle className="h-5 w-5" />
+            </Link>
+
+            {/* Settings */}
+            <Link to="/dashboard/settings" className="p-2 text-slate-300 hover:text-orange-400 transition-colors duration-300">
+              <Settings className="h-5 w-5" />
+            </Link>
+
             {/* Notifications */}
             <button className="relative p-2 text-slate-300 hover:text-orange-400 transition-colors duration-300">
               <Bell className="h-5 w-5" />
