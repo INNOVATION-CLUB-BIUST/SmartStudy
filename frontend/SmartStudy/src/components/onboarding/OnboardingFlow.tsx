@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ProgressIndicator from './ProgressIndicator';
 import GetStartedStep, { type GetStartedData } from './GetStartedStep';
@@ -240,7 +240,7 @@ const OnboardingFlow = () => {
             className="bg-red-500/90 backdrop-blur-md text-white px-6 py-4 rounded-xl shadow-2xl border border-red-400/50 flex items-center animate-in slide-in-from-right-full duration-300 pointer-events-auto max-w-md"
           >
             <div className="bg-white/20 p-2 rounded-full mr-3">
-              <CheckCircle className="h-5 w-5 text-white rotate-45" />
+              <AlertCircle className="h-5 w-5 text-white" />
             </div>
             <div>
               <p className="font-semibold text-sm opacity-90">Action Required</p>
