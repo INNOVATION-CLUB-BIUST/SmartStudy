@@ -1,4 +1,4 @@
-import { Calendar, Clock, Plus, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Trash2 } from 'lucide-react';
 
 interface ClassSchedule {
   day: string;
