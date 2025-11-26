@@ -31,8 +31,8 @@ const OnboardingFlow = () => {
     if (draft) {
       try {
         return JSON.parse(draft) as OnboardingFormData;
-      } catch { 
-        // Ignore parse errors
+      } catch (e) { 
+        if (import.meta.env.DEV) console.warn('Failed to parse onboarding draft:', e);
       }
     }
     return {
