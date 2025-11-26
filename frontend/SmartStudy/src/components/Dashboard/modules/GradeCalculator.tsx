@@ -32,7 +32,7 @@ const GradeCalculator = ({ currentCAPercentage, caWeight, finalWeight, passingMa
     
     return {
       percentage: Math.max(0, Math.min(100, neededPercentage)),
-      isPossible: neededPercentage <= 100 && neededPercentage >= 0
+      isPossible: neededPercentage <= 100
     };
   };
 

@@ -244,30 +244,30 @@ const Modules = () => {
   /**
    * Calculate the CA percentage earned for a module.
    * Returns a percentage (0-100%) representing how much of the available CA marks were earned.
-   * Example: If student earned 14/20 marks and max possible is 20/20, this returns 70%.
+   * Example: If student earned 14/20 marks from completed assessments worth 20%, this returns 70%.
    */
   const calculateCAPercentage = (module: Module) => {
     const components = module.assessments.ca.components;
     
-    // Calculate total earned percentage across all completed assessments
-    let totalEarnedPercentage = 0;
-    let totalWeightCompleted = 0;
+    // Calculate points earned from completed assessments
+    let pointsEarned = 0;
+    let maxPointsAvailable = 0;
     
     components.forEach(comp => {
       if (comp.score !== undefined) {
-        // Calculate percentage for this component and weight it
-        const componentPercentage = (comp.score / comp.maxScore) * 100;
-        totalEarnedPercentage += (componentPercentage * comp.weight) / 100;
-        totalWeightCompleted += comp.weight;
+        // Calculate points for this component
+        // E.g., score=8 out of maxScore=10 for weight=10% → earns 8 points out of 10 possible
+        pointsEarned += (comp.score / comp.maxScore) * comp.weight;
+        maxPointsAvailable += comp.weight;
       }
     });
     
     // Return the percentage of CA marks earned relative to completed assessments
     // If no assessments completed, return 0
-    if (totalWeightCompleted === 0) return 0;
+    if (maxPointsAvailable === 0) return 0;
     
-    // Calculate overall CA percentage: (earned weighted % / total weight) * 100
-    return (totalEarnedPercentage / totalWeightCompleted) * 100;
+    // Calculate overall CA percentage: (points earned / max points available) * 100
+    return (pointsEarned / maxPointsAvailable) * 100;
   };
 
   /**
