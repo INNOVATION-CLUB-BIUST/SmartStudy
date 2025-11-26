@@ -61,30 +61,6 @@ const Home = () => {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-orange-600 to-yellow-600 rounded-2xl p-8 text-black">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
-              Welcome back, {user?.firstName || 'Student'}!
-            </h1>
-            <p className="text-orange-900 text-lg">
-              Ready to continue your academic journey? Let's make today productive.
-            </p>
-            {user?.major && user?.university && (
-              <p className="text-orange-800 text-sm mt-2">
-                {user.major} • {user.university}
-              </p>
-            )}
-          </div>
-          <div className="hidden md:block">
-            <div className="w-20 h-20 bg-black/20 rounded-full flex items-center justify-center">
-              <BookOpen className="h-10 w-10 text-black" />
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Today's Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-orange-500/20">

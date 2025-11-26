@@ -26,7 +26,17 @@ AI-powered study planner that generates personalized schedules based on user's c
 - **Storage**: Unlimited
 
 ---
-
+ 
+## Frontend Architecture
+ 
+### App Shell Layout
+The application uses a fixed "App Shell" layout for the dashboard:
+- **Header**: Fixed at the top. Contains global actions (Search, Notifications, Profile, Settings, Help).
+- **Sidebar**: Fixed on the left (desktop) or hidden behind a hamburger menu (mobile). Contains primary navigation.
+- **Main Content**: The only scrollable area. This ensures navigation remains visible while browsing content.
+ 
+---
+ 
 ## Data Model
 
 ### Firestore Collections
