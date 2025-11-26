@@ -5,9 +5,6 @@ import {
   BarChart, 
   Target, 
   Brain,
-  Users,
-  Settings,
-  HelpCircle,
   TrendingUp,
   CheckSquare,
   Timer
@@ -42,6 +39,12 @@ const Sidebar = () => {
       description: 'Assignments and deadlines'
     },
     {
+      name: 'Modules',
+      href: '/dashboard/modules',
+      icon: BookOpen,
+      description: 'Manage courses and track assessments'
+    },
+    {
       name: 'Goals',
       href: '/dashboard/goals',
       icon: Target,
@@ -54,29 +57,10 @@ const Sidebar = () => {
       description: 'Performance insights and trends'
     },
     {
-      name: 'Study Groups',
-      href: '/dashboard/study-groups',
-      icon: Users,
-      description: 'Connect with fellow students'
-    },
-    {
       name: 'AI Assistant',
       href: '/dashboard/ai-assistant',
       icon: Brain,
       description: 'Get personalized study recommendations'
-    }
-  ];
-
-  const bottomItems = [
-    {
-      name: 'Settings',
-      href: '/dashboard/settings',
-      icon: Settings
-    },
-    {
-      name: 'Help & Support',
-      href: '/dashboard/help',
-      icon: HelpCircle
     }
   ];
 
@@ -117,22 +101,6 @@ const Sidebar = () => {
 
         {/* Bottom section */}
         <div className="px-4 py-4 border-t border-orange-500/20">
-          <div className="space-y-2">
-            {bottomItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 ${
-                  isActive(item.href)
-                    ? 'bg-gradient-to-r from-orange-500/20 to-yellow-500/20 text-orange-300'
-                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-orange-400'
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                <span className="text-sm">{item.name}</span>
-              </Link>
-            ))}
-          </div>
 
           {/* Quick Stats */}
           <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-orange-500/20">

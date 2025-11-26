@@ -28,12 +28,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     );
     data = null;
   }
-  
+
   if (!res.ok) {
     console.error('API Error:', res.status, data);
     throw Object.assign(new Error(data?.error || 'Request failed'), { status: res.status, data });
   }
-  
+
   return data as T;
 }
 
@@ -45,7 +45,37 @@ export function get<T>(path: string): Promise<T> {
   return request<T>(path, { method: 'GET' });
 }
 
+export interface OnboardingPayload {
+  userId: string;
+  email: string;
+  profile: {
+    firstName: string;
+    lastName: string;
+    university: string;
+    major?: string;
+    yearOfStudy: string;
+    studentId: string;
+    dateOfBirth?: string;
+  };
+  course: string;
+  goals: {
+    title: string;
+    targetDate: string;
+    priority: string;
+  }[];
+  preferences: {
+    studyTimePreference: string;
+    weeklyStudyHours: number;
+  };
+}
+
+export interface OnboardingResponse {
+  success: boolean;
+  message: string;
+  userId: string;
+}
+
 // Specific endpoints
-export function postOnboarding(payload: unknown) {
-  return post<{ message: string; userId: string }>("/onboarding", payload);
+export function postOnboarding(payload: OnboardingPayload) {
+  return post<OnboardingResponse>("/onboarding", payload);
 }

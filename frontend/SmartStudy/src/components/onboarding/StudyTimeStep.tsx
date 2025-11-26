@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, Sun, Moon, Coffee, Brain } from 'lucide-react';
+import { Clock, Sun, Moon, Coffee, Brain, Zap, Users, BookOpen, Calendar as CalendarIcon } from 'lucide-react';
 
 export interface StudyTimeData {
   preferredStudyTime: '' | 'morning' | 'afternoon' | 'evening' | 'night';
@@ -7,13 +7,14 @@ export interface StudyTimeData {
   breakDuration: '' | '5' | '10' | '15' | '30' | '45' | '60';
   studyEnvironment: '' | 'library' | 'home' | 'cafe' | 'classroom' | 'study-room' | 'outdoor' | 'anywhere';
   focusLevel: '' | '1' | '2' | '3' | '4' | '5';
-  studyMethods: string[];
-  distractions: string[];
+  freeTime: '' | 'weekends' | 'evenings' | 'afternoons' | 'flexible' | 'minimal';
+  extracurricularActivities: string[];
 }
 
 interface StudyTimeStepProps {
   data?: Partial<StudyTimeData>;
   onDataChange: (data: StudyTimeData) => void;
+  errors?: Record<string, string>;
 }
 
 const defaultStudyTimeData: StudyTimeData = {
@@ -22,11 +23,11 @@ const defaultStudyTimeData: StudyTimeData = {
   breakDuration: '',
   studyEnvironment: '',
   focusLevel: '',
-  studyMethods: [],
-  distractions: [],
+  freeTime: '',
+  extracurricularActivities: [],
 };
 
-const StudyTimeStep = ({ data, onDataChange }: StudyTimeStepProps) => {
+const StudyTimeStep = ({ data, onDataChange, errors = {} }: StudyTimeStepProps) => {
   const [formData, setFormData] = useState<StudyTimeData>({
     ...defaultStudyTimeData,
     ...data,
@@ -38,10 +39,10 @@ const StudyTimeStep = ({ data, onDataChange }: StudyTimeStepProps) => {
     onDataChange(newData);
   };
 
-  const handleArrayToggle = (field: 'studyMethods' | 'distractions', value: string) => {
+  const handleArrayToggle = (field: 'extracurricularActivities', value: string) => {
     const currentArray = formData[field];
     const newArray = currentArray.includes(value)
-      ? currentArray.filter((item) => item !== value)
+      ? currentArray.filter((item: string) => item !== value)
       : [...currentArray, value];
     handleInputChange(field, newArray);
   };
@@ -53,31 +54,18 @@ const StudyTimeStep = ({ data, onDataChange }: StudyTimeStepProps) => {
     { id: 'night', label: 'Night (12 AM - 6 AM)', icon: Brain },
   ];
 
-  const studyMethods = [
-    'Pomodoro Technique',
-    'Active Recall',
-    'Spaced Repetition',
-    'Mind Mapping',
-    'Group Study',
-    'Solo Study',
-    'Flashcards',
-    'Practice Problems',
-    'Summarization',
-    'Teaching Others'
+  const activities = [
+    { id: 'sports', label: 'Sports', icon: Zap },
+    { id: 'clubs', label: 'Clubs/Societies', icon: Users },
+    { id: 'volunteer', label: 'Volunteer Work', icon: BookOpen },
+    { id: 'hobbies', label: 'Hobbies', icon: CalendarIcon },
   ];
 
-  const distractions = [
-    'Social Media',
-    'Phone Notifications',
-    'Noise',
-    'Internet Browsing',
-    'Friends/Family',
-    'Music',
-    'TV/Streaming',
-    'Gaming',
-    'Food/Cooking',
-    'Other'
-  ];
+  const getInputClass = (field: string) => `w-full px-4 py-3 bg-slate-700 border rounded-lg text-white focus:ring-2 transition-all duration-300 ${
+    errors[field] 
+      ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+      : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'
+  }`;
 
   return (
     <div className="space-y-8">
@@ -85,15 +73,17 @@ const StudyTimeStep = ({ data, onDataChange }: StudyTimeStepProps) => {
         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full mb-4">
           <Clock className="h-8 w-8 text-black" />
         </div>
-        <h2 className="text-3xl font-bold text-white mb-2">Your study preferences</h2>
+        <h2 className="text-3xl font-bold text-white mb-2">Study preferences</h2>
         <p className="text-slate-300">
-          Help us understand your study habits and preferences for better scheduling.
+          Help us understand your study habits and schedule for better planning
         </p>
       </div>
 
       {/* Preferred Study Time */}
       <div className="space-y-4">
-        <label className="text-lg font-medium text-orange-300">When do you prefer to study?</label>
+        <label className={`text-lg font-medium ${errors.preferredStudyTime ? 'text-red-400' : 'text-orange-300'}`}>
+          When do you prefer to study? *
+        </label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {studyTimes.map((time) => (
             <button
@@ -102,24 +92,26 @@ const StudyTimeStep = ({ data, onDataChange }: StudyTimeStepProps) => {
               className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                 formData.preferredStudyTime === time.id
                   ? 'border-orange-500 bg-orange-500/20 text-white'
-                  : 'border-slate-600 bg-slate-700/50 text-slate-300 hover:border-orange-500/50 hover:bg-orange-500/10'
+                  : errors.preferredStudyTime
+                    ? 'border-red-500/50 bg-slate-700/50 text-slate-300 hover:border-red-500'
+                    : 'border-slate-600 bg-slate-700/50 text-slate-300 hover:border-orange-500/50 hover:bg-orange-500/10'
               }`}
             >
-              <time.icon className="h-6 w-6 mb-2 text-orange-400" />
+              <time.icon className={`h-6 w-6 mb-2 ${formData.preferredStudyTime === time.id ? 'text-orange-400' : 'text-slate-400'}`} />
               <div className="font-medium">{time.label}</div>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Study Duration */}
+      {/* Study Duration & Break */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-orange-300">Preferred Study Session Duration</label>
+          <label className="text-sm font-medium text-orange-300">Study Session Duration *</label>
           <select
             value={formData.studyDuration}
             onChange={(e) => handleInputChange('studyDuration', e.target.value as StudyTimeData['studyDuration'])}
-            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+            className={getInputClass('studyDuration')}
           >
             <option value="">Select duration</option>
             <option value="15">15 minutes</option>
@@ -133,11 +125,11 @@ const StudyTimeStep = ({ data, onDataChange }: StudyTimeStepProps) => {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-orange-300">Break Duration</label>
+          <label className="text-sm font-medium text-orange-300">Break Duration *</label>
           <select
             value={formData.breakDuration}
             onChange={(e) => handleInputChange('breakDuration', e.target.value as StudyTimeData['breakDuration'])}
-            className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+            className={getInputClass('breakDuration')}
           >
             <option value="">Select break duration</option>
             <option value="5">5 minutes</option>
@@ -152,11 +144,11 @@ const StudyTimeStep = ({ data, onDataChange }: StudyTimeStepProps) => {
 
       {/* Study Environment */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-orange-300">Preferred Study Environment</label>
+        <label className="text-sm font-medium text-orange-300">Preferred Study Environment *</label>
         <select
           value={formData.studyEnvironment}
           onChange={(e) => handleInputChange('studyEnvironment', e.target.value as StudyTimeData['studyEnvironment'])}
-          className="w-full px-4 py-3 bg-slate-700 border border-orange-500/30 rounded-lg text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-300"
+          className={getInputClass('studyEnvironment')}
         >
           <option value="">Select environment</option>
           <option value="library">Library</option>
@@ -171,16 +163,20 @@ const StudyTimeStep = ({ data, onDataChange }: StudyTimeStepProps) => {
 
       {/* Focus Level */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-orange-300">How would you rate your current focus level?</label>
+        <label className={`text-sm font-medium ${errors.focusLevel ? 'text-red-400' : 'text-orange-300'}`}>
+          How would you rate your current focus level? *
+        </label>
         <div className="flex space-x-4">
           {[1, 2, 3, 4, 5].map((level) => (
             <button
               key={level}
               onClick={() => handleInputChange('focusLevel', level.toString() as StudyTimeData['focusLevel'])}
-              className={`w-12 h-12 rounded-full border-2 transition-all duration-300 ${
+              className={`w-12 h-12 rounded-full border-2 transition-all duration-300 font-semibold ${
                 formData.focusLevel === level.toString()
                   ? 'border-orange-500 bg-orange-500 text-black'
-                  : 'border-slate-600 bg-slate-700 text-slate-300 hover:border-orange-500/50'
+                  : errors.focusLevel
+                    ? 'border-red-500/50 bg-slate-700 text-slate-300 hover:border-red-500'
+                    : 'border-slate-600 bg-slate-700 text-slate-300 hover:border-orange-500/50'
               }`}
             >
               {level}
@@ -193,41 +189,39 @@ const StudyTimeStep = ({ data, onDataChange }: StudyTimeStepProps) => {
         </div>
       </div>
 
-      {/* Study Methods */}
-      <div className="space-y-4">
-        <label className="text-lg font-medium text-orange-300">Study methods you use (Select all that apply)</label>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {studyMethods.map((method) => (
-            <button
-              key={method}
-              onClick={() => handleArrayToggle('studyMethods', method)}
-              className={`p-3 rounded-lg border transition-all duration-300 text-sm ${
-                formData.studyMethods.includes(method)
-                  ? 'border-orange-500 bg-orange-500/20 text-white'
-                  : 'border-slate-600 bg-slate-700/50 text-slate-300 hover:border-orange-500/50 hover:bg-orange-500/10'
-              }`}
-            >
-              {method}
-            </button>
-          ))}
-        </div>
+      {/* Free Time Preference */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-orange-300">When do you prefer to have free time? *</label>
+        <select
+          value={formData.freeTime}
+          onChange={(e) => handleInputChange('freeTime', e.target.value as StudyTimeData['freeTime'])}
+          className={getInputClass('freeTime')}
+        >
+          <option value="">Select preference</option>
+          <option value="weekends">Weekends only</option>
+          <option value="evenings">Evenings</option>
+          <option value="afternoons">Afternoons</option>
+          <option value="flexible">Flexible</option>
+          <option value="minimal">Minimal free time</option>
+        </select>
       </div>
 
-      {/* Distractions */}
+      {/* Extracurricular Activities */}
       <div className="space-y-4">
-        <label className="text-lg font-medium text-orange-300">What distracts you most? (Select all that apply)</label>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {distractions.map((distraction) => (
+        <label className="text-lg font-medium text-orange-300">Extracurricular activities (optional)</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {activities.map((activity) => (
             <button
-              key={distraction}
-              onClick={() => handleArrayToggle('distractions', distraction)}
-              className={`p-3 rounded-lg border transition-all duration-300 text-sm ${
-                formData.distractions.includes(distraction)
+              key={activity.id}
+              onClick={() => handleArrayToggle('extracurricularActivities', activity.id)}
+              className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
+                formData.extracurricularActivities.includes(activity.id)
                   ? 'border-orange-500 bg-orange-500/20 text-white'
                   : 'border-slate-600 bg-slate-700/50 text-slate-300 hover:border-orange-500/50 hover:bg-orange-500/10'
               }`}
             >
-              {distraction}
+              <activity.icon className="h-6 w-6 mb-2 text-orange-400" />
+              <div className="font-medium">{activity.label}</div>
             </button>
           ))}
         </div>

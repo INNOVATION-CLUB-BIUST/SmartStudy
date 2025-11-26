@@ -29,88 +29,79 @@ How to use this file
 - Fixed email/password editing behavior in `ProfileStep` — Completed
 - Corrected Home/Get Started routing to point to `/onboarding` — Completed
 - Resolved TypeScript and lint errors for modified files — Completed
+- Use different account (sign-out & restart onboarding) — Completed
+- Router-level guard for `/onboarding` (light) — Completed
+- Redesigned Modules UI and CRUD — Completed
+- Refactored Layout for Fixed Sidebar (App Shell) — Completed
+- Refactored Navigation: Moved Settings/Help to Header, Removed Study Groups — Completed
 
 -------------------------
 
 ## This week's priorities (small, high-impact — pick 1–2)
 
-1) Use different account (sign-out & restart onboarding)
-- What: Add a small button to let a signed-in user sign out and restart onboarding.
-- Where: `src/components/layout/Header.tsx` (preferred) or `src/components/onboarding/ProfileStep.tsx`.
-- Acceptance: Calls `signOut()` then navigates to `/onboarding` (fresh state). Clears session-block so onboarding is available.
-- Est. effort: 1–2 hours
-- Assigned: Frontend A (you)
-- Due: This week
+- Connect Modules to Firestore (CRUD)
+  - What: Implement backend integration for the new Modules UI.
+  - Where: `src/services/modules.ts`, `src/components/Dashboard/Modules.tsx`.
+  - Est. effort: 3–5 hours
+  - Assigned: Frontend A / Backend Dev 1
 
-2) Router-level guard for `/onboarding` (light)
-- What: Mirror the component guard in `App.tsx` or `ProtectedRoute.tsx` to avoid shallow route bypass.
-- Where: `src/App.tsx`, `src/components/ProtectedRoute.tsx`.
-- Acceptance: Signed-in users redirected to `/dashboard`; preserve completion override so final submit works.
-- Est. effort: 2–4 hours
-- Assigned: Frontend B
-- Due: This week
+- Backend: verify onboarding API integration (high priority)
+  - What: Confirm backend endpoint that receives onboarding payload matches frontend contract.
+  - Where: Backend functions, frontend client.
+  - Est. effort: 3–6 hours
+  - Assigned: Backend Dev 1 + Backend Dev 2
+  - Status: In progress
 
-3) Backend: verify onboarding API integration (high priority)
-- What: Confirm backend endpoint that receives onboarding payload matches frontend contract; verify with emulator or quick integration test.
-- Where: Backend functions (repo `backend/`), frontend `src/services` client.
-- Acceptance: Final submit POST succeeds in dev; backend stores payload and returns expected response. Frontend handles errors gracefully.
-- Est. effort: 3–6 hours
-- Assigned: Backend Dev 1 (lead) + Backend Dev 2 (support)
-- Status: In progress — coordinate with frontend to get sample payload
-
-4) Unit test: onboarding core (small smoke, stretch)
-- What: Add 2 unit tests: happy path + validation failure for `OnboardingFlow`.
-- Where: `frontend/src/__tests__/onboarding/OnboardingFlow.test.tsx`.
-- Acceptance: Tests run locally and in CI quickly (<10s).
-- Est. effort: 3–5 hours
-- Assigned: Frontend C
-- Due: This week (stretch)
+- Implement Schedule View
+  - What: Create the daily/weekly schedule view using the new layout.
+  - Where: `src/components/Dashboard/Schedule.tsx`.
+  - Est. effort: 4–6 hours
+  - Assigned: Frontend B
 
 -------------------------
 
 ## Short backlog / next week
 
-- CI/build checks (minimal): add GitHub Action to run TypeScript and lint on PRs. Assigned: Backend Dev 2. Est. 2–4 hours.
-- E2E smoke (optional): single Cypress/Playwright happy path covering signup. Assigned: Frontend B. Est. 6–10 hours.
-- Cleanup ESLint warnings (onboarding area): small sweep and fixes. Assigned: Frontend C. Est. 2–3 hours.
-- Update README & `TODO.md` for dev ramp: document onboarding behavior, emulators, and how to run. Assigned: Frontend A. Est. 1–2 hours.
-- `onboardingDraft` lifecycle (clear on completion + reset UX): Assigned: Frontend A. Est. 2–3 hours.
-- Monitoring / telemetry (light): instrument step enters, errors, completion. Assigned: Frontend B. Est. 2–4 hours.
+- AI Schedule Generation Integration: Connect frontend to Gemini API for schedule generation.
+- CI/build checks (minimal): add GitHub Action to run TypeScript and lint on PRs.
+- E2E smoke (optional): single Cypress/Playwright happy path covering signup.
+- Cleanup ESLint warnings (onboarding area): small sweep and fixes.
+- `onboardingDraft` lifecycle (clear on completion + reset UX).
+- Monitoring / telemetry (light): instrument step enters, errors, completion.
 
 -------------------------
 
 ## Notes for the team
-- Keep PRs small and focused (1 feature/bug per PR). Reviewers: at least one frontend + one backend for API changes.
-- Use the Firebase emulator for backend testing (check `backend/README` or ask the backend lead if missing).
-- If you need me to implement any of the "This week's" items, tell me which one(s) and I'll start and mark them in the todo list as in-progress.
+- Keep PRs small and focused.
+- Use the Firebase emulator for backend testing.
 
 ---
 
-If you'd like, I can now implement item 1 (the sign-out button) and run typechecks + start the dev server to validate. Reply with "Start item 1" or ask for a different task.
-
--------------------------
-
 ## Weekly sprint plan (starter — 4 weeks)
 
-Goal: deliver a stable onboarding flow, backend integration, basic tests, and CI. Tasks are small and student-friendly. Each week pick 1–3 items (start with the top of the list). I'll implement, run typechecks, and open PRs for review.
+Goal: deliver a stable onboarding flow, backend integration, basic tests, and CI.
 
 Week 1 (this week)
-- ID 11: Implement 'Use different account' button in `src/components/layout/Header.tsx` — Frontend A — 1–2 hrs
-- ID 12: Add router-level guard for `/onboarding` (light) — Frontend B — 2–4 hrs
-- ID 13: Backend verify onboarding API — Backend Devs — 3–6 hrs
+- [x] ID 11: Implement 'Use different account' button
+- [x] ID 12: Add router-level guard for `/onboarding`
+- [x] Redesign Modules UI
+- [x] Refactor Layout & Navigation
+- ID 13: Backend verify onboarding API
+- Connect Modules to Firestore
 
 Week 2
-- ID 14: Add unit tests for `OnboardingFlow` (happy path + validation) — Frontend C — 3–5 hrs
-- ID 15: Add minimal CI job (typecheck + lint) — Backend Dev 2 — 2–4 hrs
-- ID 19: Implement `onboardingDraft` clear-on-complete + 'Reset draft' UI — Frontend A — 2–3 hrs
+- AI Schedule Generation Integration
+- ID 14: Add unit tests for `OnboardingFlow`
+- ID 15: Add minimal CI job
+- ID 19: Implement `onboardingDraft` clear-on-complete
 
 Week 3
-- ID 16: Add E2E smoke test (Cypress/Playwright) — Frontend B — 6–10 hrs
-- ID 17: Sweep and cleanup ESLint warnings in onboarding area — Frontend C — 2–3 hrs
-- ID 18: Update README and `TODO.md` developer ramp docs — Frontend A — 1–2 hrs
+- ID 16: Add E2E smoke test
+- ID 17: Sweep and cleanup ESLint warnings
+- ID 18: Update README and `TODO.md` developer ramp docs
 
 Week 4 (wrap-up)
-- ID 20: Add lightweight telemetry for onboarding drop-offs — Frontend B — 2–4 hrs
-- Polish remaining small bugs, address PR feedback, merge outstanding changes.
+- ID 20: Add lightweight telemetry
+- Polish remaining small bugs.
 
-Ongoing: I'll post a short weekly update in this file (what I changed, PR links, and next picks). Tell me which week/task you want me to start with now — I'll mark it in the tracked todo list and begin.
+Ongoing: I'll post a short weekly update in this file.

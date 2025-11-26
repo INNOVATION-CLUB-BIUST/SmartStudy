@@ -33,13 +33,13 @@ app.get("/hello", (req, res) => {
 app.post("/onboarding", async (req, res): Promise<void> => {
   try {
     console.log("Received onboarding request:", JSON.stringify(req.body, null, 2));
-    
-    const { userId, email, profile, subjects, goals, preferences } = req.body;
+
+    const { userId, email, profile, course, goals, preferences } = req.body;
 
     // Basic validation
     if (!userId || !email) {
-      res.status(400).json({ 
-        error: "Missing required fields: userId and email" 
+      res.status(400).json({
+        error: "Missing required fields: userId and email"
       });
       return;
     }
@@ -57,7 +57,7 @@ app.post("/onboarding", async (req, res): Promise<void> => {
       yearOfStudy: profile?.yearOfStudy || "",
       studentId: profile?.studentId || "",
       dateOfBirth: profile?.dateOfBirth || "",
-      subjects: subjects || [],
+      course: course || "",
       preferences: preferences || {},
       onboardingCompleted: true,
       createdAt: now,
@@ -70,7 +70,7 @@ app.post("/onboarding", async (req, res): Promise<void> => {
     // Save goals if provided
     if (goals && Array.isArray(goals) && goals.length > 0) {
       const batch = db.batch();
-      
+
       goals.forEach((goal: any) => {
         const goalRef = db.collection("goals").doc();
         batch.set(goalRef, {
@@ -86,7 +86,7 @@ app.post("/onboarding", async (req, res): Promise<void> => {
       console.log(`Saved ${goals.length} goals for user:`, userId);
     }
 
-    res.status(201).json({ 
+    res.status(201).json({
       success: true,
       message: "Onboarding completed successfully!",
       userId
@@ -94,7 +94,7 @@ app.post("/onboarding", async (req, res): Promise<void> => {
 
   } catch (error) {
     console.error("Error during onboarding:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: "Failed to complete onboarding",
       details: error instanceof Error ? error.message : String(error)
     });

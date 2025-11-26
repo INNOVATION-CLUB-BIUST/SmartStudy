@@ -12,16 +12,33 @@ import {
   Calendar,
   BarChart,
   Target,
-  Clock
+  Clock,
+  HelpCircle
 } from 'lucide-react';
+import { signOut } from '../../services/auth';
+import { useUser } from '../../hooks/useUser';
 
 const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user } = useUser();
   const navigate = useNavigate();
 
+  const userName = user?.firstName || 'Student';
+
   const handleLogout = () => {
-    // Handle logout logic
+    // Handle logout logic - use firebase sighout and remove localstorage
+    signOut();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('role');
+    localStorage.removeItem('id');
+    localStorage.removeItem('email');
+    localStorage.removeItem('username');
+    localStorage.removeItem('password');
+    localStorage.removeItem('refreshToken');
+    
+
     navigate('/');
   };
 
@@ -37,35 +54,42 @@ const Header = () => {
     <header className="bg-black/90 backdrop-blur-md shadow-lg border-b border-orange-500/20 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          {/* Logo */}
-          <Link to="/dashboard" className="flex items-center space-x-3 group">
-            <div className="p-2 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
-              <Bot className="h-6 w-6 text-black" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">
-                SmartStudy
-              </span>
-              <span className="text-xs text-orange-300">by BIUST Innovation Club</span>
-            </div>
-          </Link>
+          {/* Left side: Logo + Welcome */}
+          <div className="flex items-center space-x-6">
+            {/* Logo */}
+            <Link to="/dashboard" className="flex items-center space-x-3 group flex-shrink-0">
+              <div className="p-2 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
+                <Bot className="h-6 w-6 text-black" />
+              </div>
+              <div className="hidden sm:flex flex-col">
+                <span className="text-xl font-bold bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">
+                  SmartStudy
+                </span>
+                <span className="text-[10px] text-orange-300">by BIUST Innovation Club</span>
+              </div>
+            </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex md:items-center md:space-x-8">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className="flex items-center space-x-2 text-slate-300 hover:text-orange-400 transition-colors duration-300 group"
-              >
-                <item.icon className="h-4 w-4 group-hover:text-orange-400" />
-                <span className="text-sm font-medium">{item.name}</span>
-              </Link>
-            ))}
-          </nav>
+            {/* Welcome Message */}
+            <div className="hidden lg:block border-l border-slate-700 pl-6">
+              <h2 className="text-lg font-semibold text-white">
+                Welcome back, <span className="bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">{userName}</span>!
+              </h2>
+              <p className="text-xs text-slate-400">Ready to make today productive?</p>
+            </div>
+          </div>
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
+            {/* Help & Support */}
+            <Link to="/dashboard/help" className="hidden md:block p-2 text-slate-300 hover:text-orange-400 transition-colors duration-300">
+              <HelpCircle className="h-5 w-5" />
+            </Link>
+
+            {/* Settings */}
+            <Link to="/dashboard/settings" className="hidden md:block p-2 text-slate-300 hover:text-orange-400 transition-colors duration-300">
+              <Settings className="h-5 w-5" />
+            </Link>
+
             {/* Notifications */}
             <button className="relative p-2 text-slate-300 hover:text-orange-400 transition-colors duration-300">
               <Bell className="h-5 w-5" />
@@ -81,7 +105,7 @@ const Header = () => {
                 <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center">
                   <User className="h-4 w-4 text-black" />
                 </div>
-                <span className="hidden md:block text-sm text-slate-300">Student</span>
+                <span className="hidden md:block text-sm text-slate-300">{userName}</span>
               </button>
 
               {/* Profile Dropdown Menu */}
@@ -90,6 +114,7 @@ const Header = () => {
                   <Link
                     to="/dashboard/profile"
                     className="flex items-center space-x-2 px-4 py-2 text-slate-300 hover:bg-slate-700 hover:text-orange-400 transition-colors duration-300"
+                    onClick={() => setIsProfileOpen(false)}
                   >
                     <User className="h-4 w-4" />
                     <span>Profile</span>
@@ -97,11 +122,12 @@ const Header = () => {
                   <Link
                     to="/dashboard/settings"
                     className="flex items-center space-x-2 px-4 py-2 text-slate-300 hover:bg-slate-700 hover:text-orange-400 transition-colors duration-300"
+                    onClick={() => setIsProfileOpen(false)}
                   >
                     <Settings className="h-4 w-4" />
                     <span>Settings</span>
                   </Link>
-                  <hr className="my-2 border-slate-600" />
+
                   <button
                     onClick={handleLogout}
                     className="flex items-center space-x-2 px-4 py-2 text-slate-300 hover:bg-slate-700 hover:text-red-400 transition-colors duration-300 w-full text-left"
@@ -126,6 +152,14 @@ const Header = () => {
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-orange-500/20 py-4">
+            {/* Mobile Welcome Message */}
+            <div className="px-4 py-3 mb-3 bg-slate-800/50 rounded-lg border border-orange-500/20">
+              <p className="text-sm font-semibold text-white">
+                Welcome back, <span className="text-orange-400">{userName}</span>!
+              </p>
+              <p className="text-xs text-slate-400 mt-1">Ready to make today productive?</p>
+            </div>
+
             <nav className="flex flex-col space-y-2">
               {navigationItems.map((item) => (
                 <Link
