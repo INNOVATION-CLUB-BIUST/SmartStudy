@@ -31,7 +31,7 @@ const ProfileStep = ({ data, onDataChange, errors = {} }: ProfileStepProps) => {
     onDataChange(newData);
   };
 
-  const getInputClass = (field: string) => `w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:ring-1 transition-all duration-300 ${
+  const getInputClass = (field: string) => `w-full px-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:ring-2 transition-all duration-300 ${
     errors[field] 
       ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
       : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'
@@ -83,7 +83,7 @@ const ProfileStep = ({ data, onDataChange, errors = {} }: ProfileStepProps) => {
               type="email"
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
-              className={`w-full pl-10 pr-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:ring-1 transition-all duration-300 ${
+              className={`w-full pl-10 pr-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:ring-2 transition-all duration-300 ${
                 errors.email 
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
                   : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'
@@ -136,7 +136,7 @@ const ProfileStep = ({ data, onDataChange, errors = {} }: ProfileStepProps) => {
               type="text"
               value={formData.university}
               onChange={(e) => handleInputChange('university', e.target.value)}
-              className={`w-full pl-10 pr-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:ring-1 transition-all duration-300 ${
+              className={`w-full pl-10 pr-4 py-3 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:ring-2 transition-all duration-300 ${
                 errors.university 
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
                   : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'
@@ -164,7 +164,7 @@ const ProfileStep = ({ data, onDataChange, errors = {} }: ProfileStepProps) => {
           <select
             value={formData.yearOfStudy}
             onChange={(e) => handleInputChange('yearOfStudy', e.target.value)}
-            className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white focus:ring-1 transition-all duration-300 ${
+            className={`w-full px-4 py-3 bg-slate-700 border rounded-lg text-white focus:ring-2 transition-all duration-300 ${
               errors.yearOfStudy 
                 ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
                 : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'
