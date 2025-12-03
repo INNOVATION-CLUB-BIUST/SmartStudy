@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import * as express from "express";
 import * as cors from "cors";
+import { modulesRouter } from "./modules";
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -100,6 +101,9 @@ app.post("/onboarding", async (req, res): Promise<void> => {
     });
   }
 });
+
+// Modules API routes
+app.use("/modules", modulesRouter);
 
 // Export the Express app as a Cloud Function
 exports.api = functions.https.onRequest(app);

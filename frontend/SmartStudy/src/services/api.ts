@@ -37,12 +37,28 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return data as T;
 }
 
-export function post<T>(path: string, body: unknown): Promise<T> {
-  return request<T>(path, { method: 'POST', body: JSON.stringify(body) });
+export function post<T>(path: string, body: unknown, options: RequestInit = {}): Promise<T> {
+  return request<T>(path, {
+    method: 'POST',
+    body: JSON.stringify(body),
+    ...options
+  });
 }
 
-export function get<T>(path: string): Promise<T> {
-  return request<T>(path, { method: 'GET' });
+export function get<T>(path: string, options: RequestInit = {}): Promise<T> {
+  return request<T>(path, { method: 'GET', ...options });
+}
+
+export function put<T>(path: string, body: unknown, options: RequestInit = {}): Promise<T> {
+  return request<T>(path, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+    ...options
+  });
+}
+
+export function del<T>(path: string, options: RequestInit = {}): Promise<T> {
+  return request<T>(path, { method: 'DELETE', ...options });
 }
 
 export interface OnboardingPayload {
