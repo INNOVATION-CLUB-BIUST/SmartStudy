@@ -2,7 +2,9 @@ import * as express from 'express';
 import * as admin from 'firebase-admin';
 
 export const modulesRouter = express.Router();
-const db = admin.firestore();
+
+// Get Firestore instance - must be called after admin.initializeApp()
+const getDb = () => admin.firestore();
 
 // Middleware to verify Firebase Auth token
 const authenticate = async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> => {
@@ -33,7 +35,7 @@ modulesRouter.get('/', async (req: express.Request, res: express.Response): Prom
     try {
         const userId = (req as any).user.uid;
 
-        const snapshot = await db.collection('classes')
+        const snapshot = await getDb().collection('classes')
             .where('userId', '==', userId)
             .orderBy('createdAt', 'desc')
             .get();
@@ -59,7 +61,7 @@ modulesRouter.get('/:id', async (req: express.Request, res: express.Response): P
         const userId = (req as any).user.uid;
         const { id } = req.params;
 
-        const doc = await db.collection('classes').doc(id).get();
+        const doc = await getDb().collection('classes').doc(id).get();
 
         if (!doc.exists) {
             res.status(404).json({ error: 'Module not found' });
@@ -124,7 +126,7 @@ modulesRouter.post('/', async (req: express.Request, res: express.Response): Pro
             updatedAt: now
         };
 
-        const docRef = await db.collection('classes').add(newModule);
+        const docRef = await getDb().collection('classes').add(newModule);
         const savedDoc = await docRef.get();
 
         res.status(201).json({
@@ -148,7 +150,7 @@ modulesRouter.put('/:id', async (req: express.Request, res: express.Response): P
         const updates = req.body;
 
         // First check if module exists and user owns it
-        const docRef = db.collection('classes').doc(id);
+        const docRef = getDb().collection('classes').doc(id);
         const doc = await docRef.get();
 
         if (!doc.exists) {
@@ -194,7 +196,7 @@ modulesRouter.delete('/:id', async (req: express.Request, res: express.Response)
         const { id } = req.params;
 
         // First check if module exists and user owns it
-        const docRef = db.collection('classes').doc(id);
+        const docRef = getDb().collection('classes').doc(id);
         const doc = await docRef.get();
 
         if (!doc.exists) {
