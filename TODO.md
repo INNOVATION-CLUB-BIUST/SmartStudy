@@ -57,57 +57,34 @@
 
 **Status:** The API code is already implemented! Your job is to test it and document it.
 
-**Step 1: Start the Firebase Emulator (30 min)**
-```bash
-cd backend/functions
-npm run serve
-```
+**📖 Complete Testing Guide:** See `backend/functions/API_TESTING.md`
 
-You should see:
-```
-✔  functions[us-central1-api]: http function initialized
-✔  All emulators ready!
-```
+**Quick Overview:**
 
-API URL: `http://127.0.0.1:5001/smartstudy-26356/us-central1/api`
+1. **Start Emulator** (5 min)
+   ```bash
+   cd backend/functions
+   npm run serve
+   ```
 
-**Step 2: Get a Test Auth Token (30 min)**
-- Start the frontend: `cd frontend/SmartStudy && npm run dev`
-- Login to the app in your browser
-- Open browser console (F12) and run:
-  ```javascript
-  firebase.auth().currentUser.getIdToken().then(console.log)
-  ```
-- Copy the token
+2. **Get Auth Token** (5 min)
+   - Start frontend: `cd ../../frontend/SmartStudy && npm run dev`
+   - Open: http://localhost:5173/get-token.html
+   - Click "Copy Token"
 
-**Step 3: Test All Endpoints (4-5 hours)**
-See detailed instructions in: `backend/functions/API_TESTING.md`
+3. **Test All Endpoints** (4-5 hours)
+   - Follow step-by-step curl commands in `API_TESTING.md`
+   - Test: GET, POST, PUT, DELETE
+   - Test error cases
+   - Verify in Firestore UI
 
-- [ ] Test GET /modules (list all) - should return empty array first
-- [ ] Test POST /modules (create) - save the returned ID!
-- [ ] Test GET /modules/:id (get single)
-- [ ] Test PUT /modules/:id (update)
-- [ ] Test DELETE /modules/:id (delete)
-- [ ] Test error cases:
-  - [ ] No auth token → 401
-  - [ ] Invalid token → 401
-  - [ ] Missing fields → 400
-  - [ ] Non-existent ID → 404
-- [ ] Verify in Firestore UI: http://127.0.0.1:4000/firestore
-- [ ] Test with 2 different users (ownership check)
+4. **Write Security Rules** (2-3 hours)
+   - Edit `firestore.rules`
 
-**Step 4: Write Firestore Security Rules (2-3 hours)**
-Edit `/firestore.rules`:
-```javascript
-match /classes/{classId} {
-  allow read, write: if request.auth != null && 
-                       resource.data.userId == request.auth.uid;
-  allow create: if request.auth != null && 
-                  request.resource.data.userId == request.auth.uid;
-}
-```
+5. **Document API** (1-2 hours)
+   - Create `backend/functions/API.md`
 
-**Step 5: Document the API (1-2 hours)**
+**Important:** Read `API_TESTING.md` - it has everything you need with beginner-friendly instructions!
 
 ### Frontend Services
 - [x] **Modules API service** (`services/modules.ts`)
