@@ -45,8 +45,7 @@
 - [ ] **Modules CRUD API** (`backend/functions/src/modules.ts`)
 - [ ] **Authentication middleware**
 - [ ] **Integrated modules router into Express app**
-```
-```
+
 ### Backend Dev 1 (10 hours) — Lead Backend
 - [ ] Implement **Modules CRUD API** (`backend/functions/src/modules.ts`)
 - [ ] Implement **Authentication middleware** for modules API
