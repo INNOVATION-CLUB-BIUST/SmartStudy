@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Auth Token - SmartStudy</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        .container {
+            background: #334155;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #f97316;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+
+        .loading {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .success {
+            background: #10b981;
+            color: white;
+        }
+
+        .error {
+            background: #ef4444;
+            color: white;
+        }
+
+        .token-box {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #475569;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        button {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background: #ea580c;
+        }
+
+        button:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+        }
+
+        .info {
+            background: #475569;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        code {
+            background: #1e293b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔑 Get Auth Token for API Testing</h1>
+        <p>This tool helps you get your Firebase authentication token for backend API testing.</p>
+
+        <div id="status" class="status loading">
+            Checking authentication status...
+        </div>
+
+        <div id="userInfo" style="display:none;">
+            <p><strong>Logged in as:</strong> <span id="userEmail"></span></p>
+            <p><strong>User ID:</strong> <span id="userId"></span></p>
+        </div>
+
+        <div id="tokenContainer" style="display:none;">
+            <h3>Your Auth Token:</h3>
+            <div class="token-box" id="tokenBox">Loading...</div>
+            <button onclick="copyToken()">📋 Copy Token</button>
+            <button onclick="refreshToken()">🔄 Refresh Token</button>
+        </div>
+
+        <div id="testExample" style="display:none;" class="info">
+            <h3>Test with curl:</h3>
+            <code>curl -X GET http://127.0.0.1:5001/smartstudy-26356/us-central1/api/modules \<br>
+  -H "Authorization: Bearer <span id="shortToken">...</span>"</code>
+        </div>
+
+        <div id="notLoggedIn" style="display:none;">
+            <a href="/" style="color: #f97316; text-decoration: none; font-weight: 600;">
+                ← Go to app and login first
+            </a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        // Your Firebase config (must match your .env file)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB1dNw5BhrK4fskmNxkPyVdTW9xGLpNjL0",
+            authDomain: "smartstudy-26356.firebaseapp.com",
+            projectId: "smartstudy-26356",
+            storageBucket: "smartstudy-26356.appspot.com",
+            messagingSenderId: "487695153037",
+            appId: "1:487695153037:web:8e9bd2840e98378affefc4",
+            measurementId: "G-E5Q1KZ76F7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        console.log('🔥 Firebase initialized');
+        console.log('📝 Auth state:', auth.currentUser ? 'User found' : 'No user yet');
+
+        let currentToken = null;
+
+        function showStatus(message, type) {
+            console.log(`📊 Status: ${message} (${type})`);
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+
+        async function displayToken(user) {
+            try {
+                console.log('👤 User detected:', user.email, user.uid);
+                showStatus('Getting auth token...', 'loading');
+
+                const token = await user.getIdToken();
+                currentToken = token;
+
+                console.log('🔑 Token obtained, length:', token.length);
+                console.log('🔑 Token preview:', token.substring(0, 50) + '...');
+
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userId').textContent = user.uid;
+                document.getElementById('tokenBox').textContent = token;
+                document.getElementById('shortToken').textContent = token.substring(0, 20) + '...';
+
+                document.getElementById('userInfo').style.display = 'block';
+                document.getElementById('tokenContainer').style.display = 'block';
+                document.getElementById('testExample').style.display = 'block';
+
+                showStatus('✓ Token ready! Click "Copy Token" button above.', 'success');
+            } catch (error) {
+                console.error('❌ Error getting token:', error);
+                showStatus('Error getting token: ' + error.message, 'error');
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            console.log('🔄 Auth state changed. User:', user ? user.email : 'null');
+
+            if (user) {
+                console.log('✅ User is logged in!');
+                displayToken(user);
+            } else {
+                console.log('⚠️ No user found. User needs to login first.');
+                showStatus('You are not logged in', 'error');
+                document.getElementById('notLoggedIn').style.display = 'block';
+            }
+        });
+
+        window.copyToken = function () {
+            if (currentToken) {
+                navigator.clipboard.writeText(currentToken).then(() => {
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = '✓ Copied!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                });
+            }
+        };
+
+        window.refreshToken = async function () {
+            const user = auth.currentUser;
+            if (user) {
+                await displayToken(user);
+            }
+        };
+    </script>
+</body>
+
+</html>
