@@ -41,8 +41,6 @@ You need these running before testing:
    - Login or create account
    - Go back to **http://localhost:5173/get-token.html**
 4. You should now see your token displayed
-5. Click the **"📋 Copy Token"** button
-6. Your token is now copied to clipboard!
 
 **IMPORTANT:** Keep this token handy - you'll use it in every test below.
 
@@ -55,12 +53,8 @@ Use the `curl` commands below. **Replace `YOUR_TOKEN` with the actual token you 
 ### ⚠️ Critical: Header Format
 
 ```bash
-# ✅ CORRECT - must include space after : and "Bearer " prefix
+# ust include space after : and "Bearer " prefix
 -H "Authorization: Bearer YOUR_TOKEN"
-
-# ❌ WRONG - will get "Unauthorized" error
--H "Authorization:YOUR_TOKEN"
-```
 
 ---
 
