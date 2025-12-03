@@ -42,29 +42,10 @@
 - [x] Basic Firebase Functions setup
 - [x] Onboarding API endpoint
 - [x] Firebase authentication setup
-- [ ] **Modules CRUD API** (`backend/functions/src/modules.ts`)
-- [ ] **Authentication middleware**
-- [ ] **Integrated modules router into Express app**
-
-### Backend Dev 1 (10 hours) — Lead Backend
-- [ ] Implement **Modules CRUD API** (`backend/functions/src/modules.ts`)
-- [ ] Implement **Authentication middleware** for modules API
-- [ ] Integrate modules router into Express app
-- [ ] Test modules API with Postman/curl
-  - [ ] Test all 5 endpoints (GET, POST, PUT, DELETE)
-  - [ ] Verify authentication middleware works
-  - [ ] Test with multiple users (ownership verification)
-  - [ ] Check data structure in Firestore emulator
-- [ ] Write Firestore security rules for `classes` collection
-- [ ] Document API in `backend/functions/API.md`
-  - [ ] Endpoint descriptions
-  - [ ] Request/response examples
-  - [ ] Error codes
-
-### Frontend Services
-- [x] **Modules API service** (`services/modules.ts`)
-- [x] **Updated `api.ts` with PUT and DELETE helpers**
-- [x] StorageService for local data
+- [x] **Modules CRUD API** (`backend/functions/src/modules.ts`)
+- [x] **Authentication middleware**
+- [x] **Integrated modules router into Express app**
+- [x] **Firebase CLI installed and emulator configured**
 
 ---
 
@@ -72,17 +53,68 @@
 
 **Goal:** Connect modules UI to Firestore - full CRUD working!
 
-### Backend Dev 1 (10 hours) — Lead Backend
-- [ ] Test modules API with Postman/curl
-  - [ ] Test all 5 endpoints (GET, POST, PUT, DELETE)
-  - [ ] Verify authentication middleware works
-  - [ ] Test with multiple users (ownership verification)
-  - [ ] Check data structure in Firestore emulator
-- [ ] Write Firestore security rules for `classes` collection
-- [ ] Document API in `backend/functions/API.md`
-  - [ ] Endpoint descriptions
-  - [ ] Request/response examples
-  - [ ] Error codes
+### Backend Dev 1 (10 hours) — Lead Backend ✅ API CODE READY
+
+**Status:** The API code is already implemented! Your job is to test it and document it.
+
+**Step 1: Start the Firebase Emulator (30 min)**
+```bash
+cd backend/functions
+npm run serve
+```
+
+You should see:
+```
+✔  functions[us-central1-api]: http function initialized
+✔  All emulators ready!
+```
+
+API URL: `http://127.0.0.1:5001/smartstudy-26356/us-central1/api`
+
+**Step 2: Get a Test Auth Token (30 min)**
+- Start the frontend: `cd frontend/SmartStudy && npm run dev`
+- Login to the app in your browser
+- Open browser console (F12) and run:
+  ```javascript
+  firebase.auth().currentUser.getIdToken().then(console.log)
+  ```
+- Copy the token
+
+**Step 3: Test All Endpoints (4-5 hours)**
+See detailed instructions in: `backend/functions/API_TESTING.md`
+
+- [ ] Test GET /modules (list all) - should return empty array first
+- [ ] Test POST /modules (create) - save the returned ID!
+- [ ] Test GET /modules/:id (get single)
+- [ ] Test PUT /modules/:id (update)
+- [ ] Test DELETE /modules/:id (delete)
+- [ ] Test error cases:
+  - [ ] No auth token → 401
+  - [ ] Invalid token → 401
+  - [ ] Missing fields → 400
+  - [ ] Non-existent ID → 404
+- [ ] Verify in Firestore UI: http://127.0.0.1:4000/firestore
+- [ ] Test with 2 different users (ownership check)
+
+**Step 4: Write Firestore Security Rules (2-3 hours)**
+Edit `/firestore.rules`:
+```javascript
+match /classes/{classId} {
+  allow read, write: if request.auth != null && 
+                       resource.data.userId == request.auth.uid;
+  allow create: if request.auth != null && 
+                  request.resource.data.userId == request.auth.uid;
+}
+```
+
+**Step 5: Document the API (1-2 hours)**
+
+### Frontend Services
+- [x] **Modules API service** (`services/modules.ts`)
+- [x] **Updated `api.ts` with PUT and DELETE helpers**
+- [x] StorageService for local data
+
+Create `backend/functions/API.md` with endpoint docs
 
 ### Backend Dev 2 (7 hours) — Support & Testing
 - [ ] Set up and run Firestore emulator
