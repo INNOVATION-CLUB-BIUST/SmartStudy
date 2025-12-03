@@ -1,107 +1,234 @@
-# SmartStudy — Team To‑Do (shareable)
+# SmartStudy — Team To‑Do
 
-This file is a concise, shareable plan for the onboarding cleanup and next steps. Tasks are bite-sized and prioritized so the student team can pick them up quickly. Completed items are listed first, then this week's deliverables, in-progress items, and a short backlog.
+**Last Updated:** 2025-12-02  
+**Timeline:** 6 weeks to MVP launch (Jan 12, 2026)
 
-Last update: 2025-11-08
+**Team:**
+- Backend Dev 1 (Motions) — backend lead
+- Backend Dev 2 (Thandi) — backend support / testing
+- Frontend Dev (Thabiso) — frontend components & integration
+- Fullstack Lead (WyvernPirate) — oversight, code review, integration
 
-Team (roles)
-- Frontend A — you (lead frontend this week)
-- Frontend B — frontend teammate
-- Frontend C — frontend teammate
-- Backend Dev 1 — backend lead
-- Backend Dev 2 — backend support / CI
-
-How to use this file
-- Assign tasks by name (or swap placeholders) and move them to "In progress" when you start.
-- Keep items small — estimated time is included.
-- If you'd like, I can implement some of these items and update the repo directly.
-
--------------------------
-
-## Completed (do not reassign)
-
-- Centralize onboarding navigation (`src/components/onboarding/OnboardingFlow.tsx`) — Completed
-- Removed per-step "Continue" buttons from onboarding steps (`src/components/onboarding/*.tsx`) — Completed
-- Simplified `ProfileStep` and re-added student fields (`src/components/onboarding/ProfileStep.tsx`) — Completed
-- Allow onboarding before account creation; create account on final submit (`OnboardingFlow`) — Completed
-- Component-level guard for onboarding (pre-auth-only policy) + live auth subscription (`OnboardingFlow`) — Completed
-- TypeScript typing cleanup for onboarding step data (`src/components/onboarding/*.tsx`) — Completed
-- Fixed email/password editing behavior in `ProfileStep` — Completed
-- Corrected Home/Get Started routing to point to `/onboarding` — Completed
-- Resolved TypeScript and lint errors for modified files — Completed
-- Use different account (sign-out & restart onboarding) — Completed
-- Router-level guard for `/onboarding` (light) — Completed
-- Redesigned Modules UI and CRUD — Completed
-- Refactored Layout for Fixed Sidebar (App Shell) — Completed
-- Refactored Navigation: Moved Settings/Help to Header, Removed Study Groups — Completed
-
--------------------------
-
-## This week's priorities (small, high-impact — pick 1–2)
-
-- Connect Modules to Firestore (CRUD)
-  - What: Implement backend integration for the new Modules UI.
-  - Where: `src/services/modules.ts`, `src/components/Dashboard/Modules.tsx`.
-  - Est. effort: 3–5 hours
-  - Assigned: Frontend A / Backend Dev 1
-
-- Backend: verify onboarding API integration (high priority)
-  - What: Confirm backend endpoint that receives onboarding payload matches frontend contract.
-  - Where: Backend functions, frontend client.
-  - Est. effort: 3–6 hours
-  - Assigned: Backend Dev 1 + Backend Dev 2
-  - Status: In progress
-
-- Implement Schedule View
-  - What: Create the daily/weekly schedule view using the new layout.
-  - Where: `src/components/Dashboard/Schedule.tsx`.
-  - Est. effort: 4–6 hours
-  - Assigned: Frontend B
-
--------------------------
-
-## Short backlog / next week
-
-- AI Schedule Generation Integration: Connect frontend to Gemini API for schedule generation.
-- CI/build checks (minimal): add GitHub Action to run TypeScript and lint on PRs.
-- E2E smoke (optional): single Cypress/Playwright happy path covering signup.
-- Cleanup ESLint warnings (onboarding area): small sweep and fixes.
-- `onboardingDraft` lifecycle (clear on completion + reset UX).
-- Monitoring / telemetry (light): instrument step enters, errors, completion.
-
--------------------------
-
-## Notes for the team
-- Keep PRs small and focused.
-- Use the Firebase emulator for backend testing.
+**How to use this file:**
+- Pick tasks from "This Week" section
+- Move to "In Progress" when you start
+- Mark [x] when complete
+- Daily async standups in chat
+- Friday demos
 
 ---
 
-## Weekly sprint plan (starter — 4 weeks)
+## ✅ Completed
 
-Goal: deliver a stable onboarding flow, backend integration, basic tests, and CI.
+### Onboarding & Layout
+- [x] Centralize onboarding navigation (`OnboardingFlow.tsx`)
+- [x] Removed per-step "Continue" buttons
+- [x] Simplified `ProfileStep` with student fields
+- [x] Allow onboarding before account creation
+- [x] Component-level auth guards
+- [x] TypeScript cleanup for onboarding
+- [x] Fixed email/password editing
+- [x] Corrected routing to `/onboarding`
+- [x] Use different account (sign-out & restart)
+- [x] Router-level guard for `/onboarding`
 
-Week 1 (this week)
-- [x] ID 11: Implement 'Use different account' button
-- [x] ID 12: Add router-level guard for `/onboarding`
-- [x] Redesign Modules UI
-- [x] Refactor Layout & Navigation
-- ID 13: Backend verify onboarding API
-- Connect Modules to Firestore
+### UI/UX
+- [x] Redesigned Modules UI with top bar navigation
+- [x] Refactored Layout for Fixed Sidebar (App Shell)
+- [x] Moved Settings/Help to Header
+- [x] Removed Study Groups feature
 
-Week 2
-- AI Schedule Generation Integration
-- ID 14: Add unit tests for `OnboardingFlow`
-- ID 15: Add minimal CI job
-- ID 19: Implement `onboardingDraft` clear-on-complete
+### Backend
+- [x] Basic Firebase Functions setup
+- [x] Onboarding API endpoint
+- [x] Firebase authentication setup
+- [ ] **Modules CRUD API** (`backend/functions/src/modules.ts`)
+- [ ] **Authentication middleware**
+- [ ] **Integrated modules router into Express app**
 
-Week 3
-- ID 16: Add E2E smoke test
-- ID 17: Sweep and cleanup ESLint warnings
-- ID 18: Update README and `TODO.md` developer ramp docs
+### Backend Dev 1 (10 hours) — Lead Backend
+- [ ] Implement **Modules CRUD API** (`backend/functions/src/modules.ts`)
+- [ ] Implement **Authentication middleware** for modules API
+- [ ] Integrate modules router into Express app
+- [ ] Test modules API with Postman/curl
+  - [ ] Test all 5 endpoints (GET, POST, PUT, DELETE)
+  - [ ] Verify authentication middleware works
+  - [ ] Test with multiple users (ownership verification)
+  - [ ] Check data structure in Firestore emulator
+- [ ] Write Firestore security rules for `classes` collection
+- [ ] Document API in `backend/functions/API.md`
+  - [ ] Endpoint descriptions
+  - [ ] Request/response examples
+  - [ ] Error codes
 
-Week 4 (wrap-up)
-- ID 20: Add lightweight telemetry
-- Polish remaining small bugs.
+### Frontend Services
+- [x] **Modules API service** (`services/modules.ts`)
+- [x] **Updated `api.ts` with PUT and DELETE helpers**
+- [x] StorageService for local data
 
-Ongoing: I'll post a short weekly update in this file.
+---
+
+## 🔥 This Week: Modules Backend Integration (Dec 2-8)
+
+**Goal:** Connect modules UI to Firestore - full CRUD working!
+
+### Backend Dev 1 (10 hours) — Lead Backend
+- [ ] Test modules API with Postman/curl
+  - [ ] Test all 5 endpoints (GET, POST, PUT, DELETE)
+  - [ ] Verify authentication middleware works
+  - [ ] Test with multiple users (ownership verification)
+  - [ ] Check data structure in Firestore emulator
+- [ ] Write Firestore security rules for `classes` collection
+- [ ] Document API in `backend/functions/API.md`
+  - [ ] Endpoint descriptions
+  - [ ] Request/response examples
+  - [ ] Error codes
+
+### Backend Dev 2 (7 hours) — Support & Testing
+- [ ] Set up and run Firestore emulator
+- [ ] Create test data for development
+- [ ] Test edge cases:
+  - [ ] Invalid data (missing fields)
+  - [ ] Malformed JSON
+  - [ ] Expired auth tokens
+  - [ ] Non-existent module IDs
+- [ ] Document bugs found
+- [ ] (Optional) Set up basic CI testing
+
+### Frontend Dev (7 hours) — Integration
+- [ ] Connect `Modules.tsx` to API
+  - [ ] Import `fetchModules`, `createModule`, etc.
+  - [ ] Remove `mockModules` constant
+  - [ ] Add `useEffect` to load modules on mount
+  - [ ] Update `handleAddModule` to use API
+  - [ ] Update `handleUpdateModule` to use API
+  - [ ] Update `handleDeleteModule` to use API
+- [ ] Add loading states
+- [ ] Add error handling and display
+- [ ] Test full CRUD cycle in browser
+- [ ] Verify data persists on refresh
+
+### Fullstack Lead (5 hours) — You
+- [ ] Code review backend implementation
+- [ ] Code review frontend integration
+- [ ] Integration testing (end-to-end)
+- [ ] Help resolve any blocking issues
+- [ ] Verify security (auth, data isolation)
+
+### Testing Checklist (Everyone)
+- [ ] Create module via UI → appears in Firestore
+- [ ] Refresh page → module still loads
+- [ ] Edit module → updates in Firestore
+- [ ] Delete module → removed from Firestore
+- [ ] Try without auth → rejected
+- [ ] Try to access another user's module → rejected
+
+---
+
+## 📅 6-Week Roadmap Overview
+
+### Week 1 (Dec 2-8) - Modules Backend ← **WE ARE HERE**
+- Connect modules to Firestore
+- Full CRUD working
+
+### Week 2 (Dec 9-15) - Assignments, Goals & AI Setup
+- Assignments API + frontend
+- Goals API + frontend
+- Google AI Studio setup
+- Initial Gemini prompt testing
+
+### Week 3 (Dec 16-22) - Schedule Generation
+- AI schedule generation algorithm
+- Daily/weekly schedule views
+- "Generate Schedule" button
+- Manual schedule editing
+
+### Week 4 (Dec 23-29) - Tier System
+- Freemium tier enforcement
+- AI usage tracking
+- Usage dashboard
+- Upgrade prompts
+- *(Holiday week - reduced hours)*
+
+### Week 5 (Dec 30 - Jan 5) - AI Adjustments & Testing
+- Smart AI adjustments (auto-rebalance)
+- Comprehensive testing
+- Bug fixes
+- UX polish
+
+### Week 6 (Jan 6-12) - Launch Prep
+- Final polish
+- Documentation
+- Deployment to production
+- Beta testing
+- **LAUNCH! 🚀**
+
+---
+
+## 📋 Upcoming Backlog
+
+### Week 2 Preview
+- [ ] Assignments collection & CRUD API
+- [ ] Goals collection & CRUD API
+- [ ] Google AI Studio account setup
+- [ ] Gemini API integration
+- [ ] Schedule generation endpoint (v1)
+
+### Later (Post-MVP)
+- [ ] Semester calendar view
+- [ ] Analytics dashboard
+- [ ] Study mode (focus timer)
+- [ ] Mobile responsiveness improvements
+- [ ] Payment integration (real subscriptions)
+- [ ] Third-party integrations (Google Calendar)
+- [ ] CI/CD pipeline
+- [ ] E2E tests (Cypress/Playwright)
+
+---
+
+## 📚 Resources
+
+- **Roadmap:** `/brain/6_week_roadmap.md` - Detailed weekly breakdown
+- **Implementation Plan:** `/brain/implementation_plan.md` - Week 1 technical details
+- **Team Assignments:** `/brain/week1_team_assignments.md` - Specific tasks with code examples
+- **Task Tracking:** `/brain/task.md` - Checklist for all weeks
+- **Architecture:** `ARCHITECTURE.md` - System design & data models
+
+---
+
+## 💬 Communication
+
+**Daily (Async):**
+- What did you do?
+- What will you do?
+- Any blockers?
+
+**Mid-Week (Wednesday):**
+- 15-min sync call
+- Demo progress
+- Discuss issues
+
+**Friday:**
+- 30-min demo + retrospective
+- Show working features
+- What went well / what can improve
+- Plan next week
+
+---
+
+## 🎯 Success Metrics
+
+**Week 1 (This Week):**
+- ✅ Modules CRUD working via UI
+- ✅ Data persists to Firestore
+- ✅ Auth protects endpoints
+- ✅ No critical bugs
+
+**End of 6 Weeks:**
+- ✅ Users can create account & onboard
+- ✅ Users can add classes, assignments, goals
+- ✅ AI generates personalized study schedules
+- ✅ Freemium model enforces tier limits
+- ✅ App is live and accepting users
+
+Let's build this! 💪

@@ -20,8 +20,7 @@ const ClassScheduleList = ({ schedule, onUpdate }: ClassScheduleListProps) => {
   };
 
   // Note: Full add/edit functionality would typically open a small modal or expand inline.
-  // For this version, we'll rely on the main Edit Module modal for adding new classes,
-  // but provide a quick delete here as requested for "componentized" feel.
+  // For this version, we'll rely on the main Edit Module modal for adding new classes
   
   return (
     <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 h-full">
