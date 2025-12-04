@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 import * as express from "express";
 import * as cors from "cors";
 import { modulesRouter } from "./modules";
@@ -21,7 +22,7 @@ if (process.env.FIRESTORE_EMULATOR_HOST) {
 // Connect to Auth emulator when running locally (added by thabiso)
 if (process.env.FIREBASE_AUTH_EMULATOR_HOST) {
   console.log("🔥 Auth emulator detected at", process.env.FIREBASE_AUTH_EMULATOR_HOST);
-} 
+}
 
 const app = express();
 
@@ -49,7 +50,7 @@ app.post("/onboarding", async (req, res): Promise<void> => {
       return;
     }
     //
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = FieldValue.serverTimestamp();
 
     // Save user profile to Firestore
     const userRef = db.collection("users").doc(userId);

@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as admin from 'firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export const modulesRouter = express.Router();
 
@@ -98,7 +99,7 @@ modulesRouter.post('/', async (req: express.Request, res: express.Response): Pro
             return;
         }
 
-        const now = admin.firestore.FieldValue.serverTimestamp();
+        const now = FieldValue.serverTimestamp();
 
         const newModule = {
             userId,
@@ -170,7 +171,7 @@ modulesRouter.put('/:id', async (req: express.Request, res: express.Response): P
 
         const updateData = {
             ...updates,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            updatedAt: FieldValue.serverTimestamp()
         };
 
         await docRef.update(updateData);

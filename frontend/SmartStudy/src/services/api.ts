@@ -1,6 +1,6 @@
 import { getAuth } from "firebase/auth";
 
-const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5001/smartstudy-26356/us-central1/api";
+const baseUrl = import.meta.env.VITE_FUNCTIONS_BASE_URL|| "http://localhost:5001/smartstudy-26356/us-central1/api";
 /**
  * Retrieves the current user's Firebase ID token.
  *
