@@ -53,11 +53,13 @@ No additional environment variables needed. Firebase Admin SDK automatically det
 
 ## Development Workflow
 
-### 1. Start Backend (Terminal 1)
+### 1. Start Emulators (Terminal 1)
 ```bash
 cd /home/wyvernpirate/Work/SmartStudy
-firebase emulators:start --only functions,firestore
+firebase emulators:start
 ```
+
+This single command starts **both** Firestore and Functions emulators.
 
 Wait for:
 ```

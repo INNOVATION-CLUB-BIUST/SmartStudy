@@ -63,8 +63,8 @@
 
 1. **Start Emulator** (5 min)
    ```bash
-   cd backend/functions
-   npm run serve
+   # From project root
+   firebase emulators:start
    ```
 
 2. **Get Auth Token** (5 min)

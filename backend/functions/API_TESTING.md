@@ -11,11 +11,11 @@ You need these running before testing:
 
 1. **Backend Emulator**
    ```bash
-   cd backend/functions
-   npm run serve
+   # From project root
+   firebase emulators:start
    ```
    
-   ✅ You should see: `✔ functions[us-central1-api]: http function initialized`
+   ✅ You should see: `✔ All emulators ready! It is now safe to connect your app.`
 
 2. **Frontend Dev Server** (to get auth tokens)
    ```bash
@@ -342,7 +342,7 @@ To verify users can only access their own modules:
 - Wrong token - make sure you copied correctly
 
 ### "Connection refused" or "Could not resolve host"
-- Emulator not running - run `npm run serve` in backend/functions
+- Emulator not running - run `firebase emulators:start` from project root
 - Wrong URL - check it's `127.0.0.1:5001` not `localhost:5001`
 
 ### get-token.html says "Not logged in"
