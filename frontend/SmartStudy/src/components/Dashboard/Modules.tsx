@@ -7,50 +7,12 @@ import ClassScheduleList from './modules/ClassScheduleList';
 import AssessmentList from './modules/AssessmentList';
 import GradeCalculator from './modules/GradeCalculator';
 import { fetchModules, createModule, updateModule, deleteModule } from '../../services/modules';
+import type { Module, ClassSchedule } from '../../services/modules';
 type CreateModuleData = Omit<Module, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;
 
 
 
-interface ClassSchedule {
-  day: string;
-  startTime: string;
-  endTime: string;
-  location: string;
-  type: 'lecture' | 'tutorial' | 'lab';
-}
 
-interface AssessmentComponent {
-  name: string;
-  weight: number;
-  score?: number;
-  maxScore: number;
-  dueDate?: string;
-}
-
-interface Module {
-  id: string;
-  code: string;
-  name: string;
-  credits: number;
-  instructor: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  classSchedule: ClassSchedule[];
-  assessments: {
-    ca: {
-      weight: number;
-      components: AssessmentComponent[];
-    };
-    finalExam: {
-      weight: number;
-      date: string;
-      score?: number;
-    };
-    dpRequirement: number;
-    passingMark: number;
-  };
-  targetGrade?: number;
-  color: string;
-}
 
 // Mock data
 
@@ -92,11 +54,8 @@ const handleAddModule = async (moduleData: CreateModuleData) => {
   try {
     setError(null);
     
-    // Remove the id field - backend will generate it
-    const { id, ...dataWithoutId } = moduleData;
-    
     // Call API to create module
-    const newModule = await createModule(dataWithoutId);
+    const newModule = await createModule(moduleData);
     
     // Add to local state
     setModules([...modules, newModule]);
@@ -253,19 +212,7 @@ const handleUpdateFinalScore = async (newScore: number) => {
     return (pointsEarned / maxPointsAvailable) * 100;
   };
 
-  /**
-   * Calculate the CA points earned for a module (for display purposes).
-   * Returns weighted points earned (e.g., 14 out of 40 total CA weight).
-   */
-  const calculateCAProgress = (module: Module) => {
-    const earnedPoints = module.assessments.ca.components.reduce((sum, comp) => {
-      if (comp.score !== undefined) {
-        return sum + (comp.score / comp.maxScore) * comp.weight;
-      }
-      return sum;
-    }, 0);
-    return earnedPoints;
-  };
+
 
   return (
   <div className="relative min-h-screen pb-20 flex flex-col">
