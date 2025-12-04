@@ -50,14 +50,6 @@ You need these running before testing:
 
 Use the `curl` commands below. **Replace `YOUR_TOKEN` with the actual token you copied.**
 
-### ⚠️ Critical: Header Format
-
-```bash
-# ust include space after : and "Bearer " prefix
--H "Authorization: Bearer YOUR_TOKEN"
-
----
-
 ### Test 1: List All Modules (GET)
 
 **What it does:** Gets all modules for the logged-in user
