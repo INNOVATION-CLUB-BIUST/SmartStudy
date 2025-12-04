@@ -10,14 +10,18 @@ admin.initializeApp();
 // Get Firestore instance
 const db = admin.firestore();
 
-// Connect to emulator when running locally
-if (process.env.FUNCTIONS_EMULATOR === 'true') {
-  console.log('🔧 Connecting to Firestore emulator at localhost:8080');
+// Connect to emulator when running locally(added by thabiso)
+if (process.env.FIRESTORE_EMULATOR_HOST) {
+  console.log("🔥 Connecting to Firestore emulator");
   db.settings({
-    host: 'localhost:8080',
+    host: "localhost:8080",
     ssl: false,
   });
 }
+// Connect to Auth emulator when running locally (added by thabiso)
+if (process.env.FIREBASE_AUTH_EMULATOR_HOST) {
+  console.log("🔥 Auth emulator detected at", process.env.FIREBASE_AUTH_EMULATOR_HOST);
+} 
 
 const app = express();
 
@@ -44,10 +48,12 @@ app.post("/onboarding", async (req, res): Promise<void> => {
       });
       return;
     }
+    //
+    const now = admin.firestore.FieldValue.serverTimestamp();
 
     // Save user profile to Firestore
     const userRef = db.collection("users").doc(userId);
-    const now = new Date().toISOString();
+    //const now = new Date().toISOString();
     const userData = {
       uid: userId,
       email,

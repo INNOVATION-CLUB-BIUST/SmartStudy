@@ -1,65 +1,127 @@
-const baseUrl = (import.meta.env.VITE_FUNCTIONS_BASE_URL as string | undefined)?.replace(/\/$/, '') || '';
+import { getAuth } from "firebase/auth";
+
+const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5001/smartstudy-26356/us-central1/api";
+/**
+ * Retrieves the current user's Firebase ID token.
+ *
+ * - If the user is already loaded (`auth.currentUser` exists), returns the token immediately.
+ * - If Firebase Auth is still initializing, waits for `onAuthStateChanged` to fire before returning the token.
+ * - Returns `null` if no user is logged in.
+ *
+ * This ensures that API requests always include a valid token, even on initial page load.
+ */
+async function getUserToken(): Promise<string | null> {
+  const auth = getAuth();
+
+  if (auth.currentUser) {
+    return await auth.currentUser.getIdToken();
+  }
+
+  // Wait for Firebase to finish initializing
+  return new Promise((resolve) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      unsubscribe();
+      resolve(user ? await user.getIdToken() : null);
+    });
+  });
+}
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+
+  // Get token if logged in
+  const token = await getUserToken();
+
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...(options.headers || {}),
   };
 
-  if (!baseUrl) {
-    console.warn('VITE_FUNCTIONS_BASE_URL is not set. Requests will likely fail.');
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  } else {
+    console.warn("⚠ No Firebase auth token found. User may not be logged in.");
   }
 
-  const url = `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
-  console.log('API Request:', url, options.method || 'GET');
+  if (!baseUrl) {
+    console.warn("⚠ baseUrl is empty. API calls will fail.");
+  }
 
-  const res = await fetch(url, {
-    ...options,
-    headers,
-  });
+  const url = `${baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
+  console.log("🌐 API Request:", options.method || "GET", url);
 
-  let data: any;
+  let res: Response;
+
+  try {
+    res = await fetch(url, {
+      ...options,
+      headers,
+    });
+  } catch (networkError) {
+    console.error("❌ Network error:", networkError);
+    throw new Error("Network error — is the backend emulator running?");
+  }
+
+  // Attempt to parse server JSON
+  let data: any = null;
   try {
     data = await res.json();
-  } catch (err) {
-    throw Object.assign(
-      new Error(data.error || `Request failed with status ${res.status}`),
-      { status: res.status, data }
-    );
-    data = null;
+  } catch {
+    console.warn("⚠ Response was not valid JSON");
   }
 
+  // Handle HTTP status errors
   if (!res.ok) {
-    console.error('API Error:', res.status, data);
-    throw Object.assign(new Error(data?.error || 'Request failed'), { status: res.status, data });
+    const message =
+      data?.error ||
+      `Request failed with status ${res.status}: ${res.statusText}`;
+
+    console.error("❌ API Error:", message, "→ Full data:", data);
+    throw Object.assign(new Error(message), {
+      status: res.status,
+      data,
+    });
   }
 
   return data as T;
 }
 
+// ------------------------------
+// Public API Methods
+// ------------------------------
+
 export function post<T>(path: string, body: unknown, options: RequestInit = {}): Promise<T> {
   return request<T>(path, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify(body),
-    ...options
+    ...options,
   });
 }
 
 export function get<T>(path: string, options: RequestInit = {}): Promise<T> {
-  return request<T>(path, { method: 'GET', ...options });
+  return request<T>(path, {
+    method: "GET",
+    ...options,
+  });
 }
 
 export function put<T>(path: string, body: unknown, options: RequestInit = {}): Promise<T> {
   return request<T>(path, {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify(body),
-    ...options
+    ...options,
   });
 }
 
 export function del<T>(path: string, options: RequestInit = {}): Promise<T> {
-  return request<T>(path, { method: 'DELETE', ...options });
+  return request<T>(path, {
+    method: "DELETE",
+    ...options,
+  });
 }
+
+// ------------------------------
+// Onboarding Types & Endpoint
+// ------------------------------
 
 export interface OnboardingPayload {
   userId: string;
@@ -91,7 +153,6 @@ export interface OnboardingResponse {
   userId: string;
 }
 
-// Specific endpoints
 export function postOnboarding(payload: OnboardingPayload) {
   return post<OnboardingResponse>("/onboarding", payload);
 }

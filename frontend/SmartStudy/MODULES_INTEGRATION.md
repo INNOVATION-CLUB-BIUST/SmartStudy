@@ -504,3 +504,133 @@ Before submitting for review:
 ---
 
 Good luck! 🚀 You got this! 💪
+
+
+
+
+
+
+
+{/*mockdata*/}
+const mockModules: Module[] = [
+  {
+    id: '1',
+    code: 'CSI311',
+    name: 'Data Structures & Algorithms',
+    credits: 3,
+    instructor: 'Dr. Sarah Johnson',
+    difficulty: 'hard',
+    color: 'from-orange-500 to-red-500',
+    classSchedule: [
+      { day: 'Monday', startTime: '09:00', endTime: '11:00', location: 'Lecture Hall A', type: 'lecture' },
+      { day: 'Wednesday', startTime: '14:00', endTime: '16:00', location: 'Lab B', type: 'lab' }
+    ],
+    assessments: {
+      ca: {
+        weight: 40,
+        components: [
+          { name: 'Assignment 1', weight: 10, score: 8, maxScore: 10 },
+          { name: 'Assignment 2', weight: 10, score: 6, maxScore: 10 },
+          { name: 'CA Test 1', weight: 10, maxScore: 10, dueDate: '2025-11-30' },
+          { name: 'CA Test 2', weight: 10, maxScore: 10, dueDate: '2025-12-10' }
+        ]
+      },
+      finalExam: {
+        weight: 60,
+        date: '2025-12-15'
+      },
+      dpRequirement: 40,
+      passingMark: 50
+    },
+    targetGrade: 75
+  },
+  {
+    id: '2',
+    code: 'MAT201',
+    name: 'Calculus II',
+    credits: 3,
+    instructor: 'Prof. Michael Chen',
+    difficulty: 'medium',
+    color: 'from-blue-500 to-cyan-500',
+    classSchedule: [
+      { day: 'Tuesday', startTime: '10:00', endTime: '12:00', location: 'Math Building 201', type: 'lecture' },
+      { day: 'Thursday', startTime: '10:00', endTime: '12:00', location: 'Math Building 201', type: 'tutorial' }
+    ],
+    assessments: {
+      ca: {
+        weight: 30,
+        components: [
+          { name: 'Quiz 1', weight: 10, score: 9, maxScore: 10 },
+          { name: 'Quiz 2', weight: 10, score: 7, maxScore: 10 },
+          { name: 'Midterm', weight: 10, maxScore: 10, dueDate: '2025-11-28' }
+        ]
+      },
+      finalExam: {
+        weight: 70,
+        date: '2025-12-18'
+      },
+      dpRequirement: 40,
+      passingMark: 50
+    },
+    targetGrade: 80
+  },
+  {
+    id: '3',
+    code: 'PHY101',
+    name: 'Physics for Engineers',
+    credits: 4,
+    instructor: 'Dr. Emily Rodriguez',
+    difficulty: 'medium',
+    color: 'from-green-500 to-emerald-500',
+    classSchedule: [
+      { day: 'Monday', startTime: '14:00', endTime: '16:00', location: 'Science Block 3', type: 'lecture' },
+      { day: 'Friday', startTime: '09:00', endTime: '11:00', location: 'Physics Lab', type: 'lab' }
+    ],
+    assessments: {
+      ca: {
+        weight: 40,
+        components: [
+          { name: 'Lab Report 1', weight: 10, score: 8.5, maxScore: 10 },
+          { name: 'Lab Report 2', weight: 10, maxScore: 10, dueDate: '2025-12-01' },
+          { name: 'CA Test', weight: 20, maxScore: 20, dueDate: '2025-12-08' }
+        ]
+      },
+      finalExam: {
+        weight: 60,
+        date: '2025-12-20'
+      },
+      dpRequirement: 40,
+      passingMark: 50
+    },
+    targetGrade: 70
+  },
+  {
+    id: '4',
+    code: 'ENG102',
+    name: 'Technical Communication',
+    credits: 2,
+    instructor: 'Ms. Amanda Williams',
+    difficulty: 'easy',
+    color: 'from-purple-500 to-pink-500',
+    classSchedule: [
+      { day: 'Wednesday', startTime: '16:00', endTime: '18:00', location: 'Humanities 105', type: 'lecture' }
+    ],
+    assessments: {
+      ca: {
+        weight: 50,
+        components: [
+          { name: 'Essay 1', weight: 15, score: 13, maxScore: 15 },
+          { name: 'Presentation', weight: 15, score: 12, maxScore: 15 },
+          { name: 'Essay 2', weight: 20, maxScore: 20, dueDate: '2025-12-05' }
+        ]
+      },
+      finalExam: {
+        weight: 50,
+        date: '2025-12-12'
+      },
+      dpRequirement: 40,
+      passingMark: 50
+    },
+    targetGrade: 85
+  }
+];
