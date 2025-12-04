@@ -30,8 +30,8 @@ You're working on integrating the beautiful modules UI that's already built with
 
 1. **Backend Emulator**
    ```bash
-   cd backend/functions
-   npm run serve
+   cd /home/wyvernpirate/Work/SmartStudy
+   firebase emulators:start --only functions,firestore
    ```
    ✅ Should see: `functions[us-central1-api]: http function initialized`
 
