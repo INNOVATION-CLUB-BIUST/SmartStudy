@@ -87,6 +87,14 @@ const AddModuleModal = ({ onClose, onSave, existingModule }: AddModuleModalProps
 
   const updateCAComponent = (index: number, field: keyof AssessmentComponent, value: string | number) => {
     const updated = [...caComponents];
+    
+    // Validate and clamp numeric values
+    if (field === 'weight' && typeof value === 'number') {
+      value = Math.max(0, Math.min(100, value)); // Clamp between 0-100
+    } else if (field === 'maxScore' && typeof value === 'number') {
+      value = Math.max(0, value); // Must be positive
+    }
+    
     updated[index] = { ...updated[index], [field]: value };
     setCaComponents(updated);
   };
@@ -180,6 +188,10 @@ const AddModuleModal = ({ onClose, onSave, existingModule }: AddModuleModalProps
                     type="number"
                     value={credits}
                     onChange={(e) => setCredits(parseInt(e.target.value))}
+                    onBlur={(e) => {
+                      const val = parseInt(e.target.value) || 1;
+                      setCredits(Math.max(1, Math.min(6, val)));
+                    }}
                     min="1"
                     max="6"
                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
@@ -237,7 +249,11 @@ const AddModuleModal = ({ onClose, onSave, existingModule }: AddModuleModalProps
                     type="number"
                     value={targetGrade}
                     onChange={(e) => setTargetGrade(parseInt(e.target.value))}
-                    min="50"
+                    onBlur={(e) => {
+                      const val = parseInt(e.target.value) || 50;
+                      setTargetGrade(Math.max(0, Math.min(100, val)));
+                    }}
+                    min="0"
                     max="100"
                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
                   />
@@ -356,6 +372,11 @@ const AddModuleModal = ({ onClose, onSave, existingModule }: AddModuleModalProps
                     onChange={(e) => {
                       const val = parseInt(e.target.value);
                       setCaWeight(val);
+                      setFinalWeight(100 - (val || 0));
+                    }}
+                    onBlur={(e) => {
+                      const val = Math.max(0, Math.min(100, parseInt(e.target.value) || 0));
+                      setCaWeight(val);
                       setFinalWeight(100 - val);
                     }}
                     min="0"
@@ -384,6 +405,10 @@ const AddModuleModal = ({ onClose, onSave, existingModule }: AddModuleModalProps
                     type="number"
                     value={dpRequirement}
                     onChange={(e) => setDpRequirement(parseInt(e.target.value))}
+                    onBlur={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      setDpRequirement(Math.max(0, Math.min(100, val)));
+                    }}
                     min="0"
                     max="100"
                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
@@ -398,6 +423,10 @@ const AddModuleModal = ({ onClose, onSave, existingModule }: AddModuleModalProps
                     type="number"
                     value={passingMark}
                     onChange={(e) => setPassingMark(parseInt(e.target.value))}
+                    onBlur={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      setPassingMark(Math.max(0, Math.min(100, val)));
+                    }}
                     min="0"
                     max="100"
                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
@@ -410,10 +439,11 @@ const AddModuleModal = ({ onClose, onSave, existingModule }: AddModuleModalProps
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h4 className="text-sm font-semibold text-white">CA Components</h4>
-                    <p className="text-xs text-slate-400 mt-1">
-                      Total: {totalCAWeight}% {!isCAWeightValid && (
-                        <span className="text-red-400">(should equal {caWeight}%)</span>
-                      )}
+                    <p className={`text-xs mt-1 ${
+                      isCAWeightValid ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      Total: {totalCAWeight}% / {caWeight}%
+                      {isCAWeightValid ? ' ✓' : ' ⚠ Must equal CA weight'}
                     </p>
                   </div>
                   <button
@@ -457,8 +487,14 @@ const AddModuleModal = ({ onClose, onSave, existingModule }: AddModuleModalProps
                           <input
                             type="number"
                             value={component.weight}
-                            onChange={(e) => updateCAComponent(index, 'weight', parseInt(e.target.value))}
+                            onChange={(e) => {
+                              const updated = [...caComponents];
+                              updated[index] = { ...updated[index], weight: parseInt(e.target.value) };
+                              setCaComponents(updated);
+                            }}
+                            onBlur={(e) => updateCAComponent(index, 'weight', parseInt(e.target.value) || 0)}
                             min="0"
+                            max="100"
                             className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-orange-500"
                           />
                         </div>
@@ -468,8 +504,14 @@ const AddModuleModal = ({ onClose, onSave, existingModule }: AddModuleModalProps
                           <input
                             type="number"
                             value={component.maxScore}
-                            onChange={(e) => updateCAComponent(index, 'maxScore', parseInt(e.target.value))}
+                            onChange={(e) => {
+                              const updated = [...caComponents];
+                              updated[index] = { ...updated[index], maxScore: parseInt(e.target.value) };
+                              setCaComponents(updated);
+                            }}
+                            onBlur={(e) => updateCAComponent(index, 'maxScore', parseInt(e.target.value) || 0)}
                             min="0"
+                            max="1000"
                             className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-orange-500"
                           />
                         </div>

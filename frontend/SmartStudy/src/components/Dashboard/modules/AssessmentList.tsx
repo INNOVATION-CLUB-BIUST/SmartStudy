@@ -92,7 +92,8 @@ const AssessmentList = ({ assessments, onUpdateScore, onUpdateFinalScore }: Asse
                         onClick={() => {
                           const newScore = prompt(`Update score for ${comp.name} (Max: ${comp.maxScore})`, comp.score?.toString());
                           if (newScore !== null && !isNaN(Number(newScore))) {
-                            onUpdateScore(idx, Number(newScore));
+                            const clampedScore = Math.max(0, Math.min(comp.maxScore, Number(newScore)));
+                            onUpdateScore(idx, clampedScore);
                           }
                         }}
                         className="text-[10px] text-slate-400 hover:text-white underline decoration-dotted"
@@ -105,7 +106,8 @@ const AssessmentList = ({ assessments, onUpdateScore, onUpdateFinalScore }: Asse
                       onClick={() => {
                         const newScore = prompt(`Enter score for ${comp.name} (Max: ${comp.maxScore})`);
                         if (newScore !== null && !isNaN(Number(newScore))) {
-                          onUpdateScore(idx, Number(newScore));
+                          const clampedScore = Math.max(0, Math.min(comp.maxScore, Number(newScore)));
+                          onUpdateScore(idx, clampedScore);
                         }
                       }}
                       className="text-xs px-2 py-1 bg-slate-700 hover:bg-orange-500 hover:text-black text-slate-300 rounded transition-colors"
@@ -155,7 +157,8 @@ const AssessmentList = ({ assessments, onUpdateScore, onUpdateFinalScore }: Asse
                 onClick={() => {
                   const newScore = prompt('Update Final Exam Score (%)', assessments.finalExam.score?.toString());
                   if (newScore !== null && !isNaN(Number(newScore))) {
-                    onUpdateFinalScore(Number(newScore));
+                    const clampedScore = Math.max(0, Math.min(100, Number(newScore)));
+                    onUpdateFinalScore(clampedScore);
                   }
                 }}
                 className="text-xs text-slate-500 hover:text-white"
@@ -168,7 +171,8 @@ const AssessmentList = ({ assessments, onUpdateScore, onUpdateFinalScore }: Asse
               onClick={() => {
                 const newScore = prompt('Enter Final Exam Score (%)');
                 if (newScore !== null && !isNaN(Number(newScore))) {
-                  onUpdateFinalScore(Number(newScore));
+                  const clampedScore = Math.max(0, Math.min(100, Number(newScore)));
+                  onUpdateFinalScore(clampedScore);
                 }
               }}
               className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500 hover:text-white text-red-300 text-xs font-medium rounded-lg transition-colors"
