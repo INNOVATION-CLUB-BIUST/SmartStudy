@@ -33,3 +33,5 @@ firebase-debug.log
 *.njsproj
 *.sln
 *.sw?
+
+get-token.html
