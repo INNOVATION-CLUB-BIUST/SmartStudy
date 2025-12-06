@@ -22,10 +22,6 @@ firebase-debug.log
 .env
 .env.local
 .env.*.local
-firebase.json
-.firebaserc
-firestore.indexes.json
-firestore.rules
 
 
 # Editor directories and files
