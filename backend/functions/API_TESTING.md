@@ -72,39 +72,7 @@ curl http://127.0.0.1:5001/smartstudy-26356/us-central1/api/modules \
 **What it does:** Creates a new module
 
 ```bash
-curl -X POST http://127.0.0.1:5001/smartstudy-26356/us-central1/api/modules \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "code": "CSI311",
-    "name": "Data Structures & Algorithms",
-    "credits": 3,
-    "instructor": "Dr. Sarah Johnson",
-    "difficulty": "hard",
-    "color": "from-orange-500 to-red-500",
-    "classSchedule": [
-      {
-        "day": "Monday",
-        "startTime": "09:00",
-        "endTime": "11:00",
-        "location": "Lecture Hall A",
-        "type": "lecture"
-      }
-    ],
-    "assessments": {
-      "ca": {
-        "weight": 40,
-        "components": []
-      },
-      "finalExam": {
-        "weight": 60,
-        "date": "2025-12-20"
-      },
-      "dpRequirement": 40,
-      "passingMark": 50
-    },
-    "targetGrade": 75
-  }'
+curl -X POST http://127.0.0.1:5001/smartstudy-26356/us-central1/api/modules -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d '{"code":"CSI311","name":"Data Structures & Algorithms","credits":3,"instructor":"Dr. Sarah Johnson","difficulty":"hard","color":"from-orange-500 to-red-500","classSchedule":[{"day":"Monday","startTime":"09:00","endTime":"11:00","location":"Lecture Hall A","type":"lecture"}],"assessments":{"ca":{"weight":40,"components":[]},"finalExam":{"weight":60,"date":"2025-12-20"},"dpRequirement":40,"passingMark":50},"targetGrade":75}'
 ```
 
 **Expected Result:**
